@@ -1,6 +1,0 @@
-framework module kMusicSwift {
-  umbrella header "kMusicSwift-umbrella.h"
-
-  export *
-  module * { export * }
-}
