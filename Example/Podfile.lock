@@ -9,7 +9,8 @@ PODS:
   - iOSSnapshotTestCase/Core (8.0.0)
   - iOSSnapshotTestCase/SwiftSupport (8.0.0):
     - iOSSnapshotTestCase/Core
-  - kMusicSwift (0.1.0)
+  - kMusicSwift (0.1.0):
+    - SwiftAudioPlayer
   - Nimble (10.0.0)
   - Nimble-Snapshots (9.4.0):
     - Nimble-Snapshots/Core (= 9.4.0)
@@ -17,6 +18,7 @@ PODS:
     - iOSSnapshotTestCase (~> 8.0)
     - Nimble
   - Quick (2.2.1)
+  - SwiftAudioPlayer (7.6.0)
 
 DEPENDENCIES:
   - FBSnapshotTestCase (~> 2.1.4)
@@ -32,6 +34,7 @@ SPEC REPOS:
     - Nimble
     - Nimble-Snapshots
     - Quick
+    - SwiftAudioPlayer
 
 EXTERNAL SOURCES:
   kMusicSwift:
@@ -40,10 +43,11 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
   iOSSnapshotTestCase: a670511f9ee3829c2b9c23e6e68f315fd7b6790f
-  kMusicSwift: bd0351ac00e93216328ab398272680afc816a2ff
+  kMusicSwift: 98a3a2b211a67196d52c5e9f02a26ea4447399df
   Nimble: 5316ef81a170ce87baf72dd961f22f89a602ff84
   Nimble-Snapshots: ef281b908c604f78c8313587e25ea92c8ab513d7
   Quick: f5754d69b7013f5864c29aab9ae6f0c79c5bc200
+  SwiftAudioPlayer: a546709faf47f3ab0cb59e41ba4432e6bb61db0a
 
 PODFILE CHECKSUM: 0413282ea8234bd3b792b1b4a9fbba40063c89d9
 
