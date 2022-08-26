@@ -1,6 +1,0 @@
-framework module Pods_kMusicSwift_Example {
-  umbrella header "Pods-kMusicSwift_Example-umbrella.h"
-
-  export *
-  module * { export * }
-}
