@@ -2,6 +2,7 @@ import AVFoundation
 import Combine
 import Darwin
 import Foundation
+import SwiftAudioPlayer
 
 // Icy Metadata (?)
 // Volume ✅
@@ -32,9 +33,8 @@ public enum LoopMode {
 
 @available(iOS 15.0, *)
 public class JustAudioPlayer {
-    public var isPlaying: Bool {
-        playerNode.isPlaying
-    }
+    // whether we're currently playing a song
+    @Published public private(set) var isPlaying: Bool = false
 
     // the current loop mode
     @Published public private(set) var loopMode: LoopMode = .off
@@ -42,17 +42,29 @@ public class JustAudioPlayer {
     // player node volume value
     @Published public private(set) var volume: Float?
 
-    private let engine: AVAudioEngine = .init()
-    private let playerNode: AVAudioPlayerNode = .init()
-
-    // To be forwarded to the http client, in case we load a track from the internet
+    // TODO: to be forwarded to the http client, in case we load a track from the internet
     var httpHeaders: [String: String] = [:]
 
     /// Tracks which track is being reproduced
     private var queueIndex: Int?
+
+    /// Full list of tracks that will be played
     private var queue: [TrackResource] = []
 
-    public init() {}
+    /// Track that is currently being processed
+    private var currentTrack: TrackResource? {
+        if let index = queueIndex {
+            return queue[index]
+        }
+
+        return nil
+    }
+
+    private var playingStatusSubscription: UInt?
+
+    public init() {
+        subscribeToPlayingStatusUpdates()
+    }
 
     /// To be modified in order to handle multiple tracks at once
     public func addTrack(_ track: TrackResource) {
@@ -63,28 +75,23 @@ public class JustAudioPlayer {
 
     /// Starts to play the current queue of the player
     /// If the player is already playing, calling this method will result in a no-op
-    public func play() throws {
-        if isPlaying {
-            return
-        }
-
-        if let track = getNextTrack() {
-            try setupEngine(withProcessingFormat: track.processingFormat)
-
-            playNext(track: track)
+    public func play() {
+        if let track = tryMoveToNextTrack() {
+            play(track: track)
         }
     }
 
     // Pause but remain ready to play
     public func pause() {
-        playerNode.pause()
-        engine.pause()
+        SAPlayer.shared.pause()
     }
 
     public func stop() {
+        SAPlayer.shared.stopStreamingRemoteAudio()
+        SAPlayer.shared.playerNode?.stop()
+        SAPlayer.shared.engine?.stop()
         queue.removeAll()
-        playerNode.stop()
-        engine.stop()
+        unsubscribeUpdates()
     }
 
     // Jump to the 10 second position
@@ -116,7 +123,7 @@ public class JustAudioPlayer {
             throw VolumeValueNotValid(value: volume)
         }
         self.volume = volume
-        playerNode.volume = volume
+        SAPlayer.shared.playerNode?.volume = volume
     }
 
     // Set the loop mode
@@ -157,59 +164,90 @@ public class JustAudioPlayer {
 
     // MARK: - Queue
 
-    func getNextTrack() -> AVAudioFile? {
-        // side effect
+    /// Tries to move the queue index to the next track.
+    /// If we're on the last track of the queue or the queue is empty, the queueIndex will not change
+    func tryMoveToNextTrack() -> TrackResource? {
         let currentIndex = queueIndex ?? 0
 
+        // do not change the index, and return the current track
         if loopMode == LoopMode.one {
-            return queue[currentIndex].audioFile
+            return queue[currentIndex]
         }
 
         let nextIndex = queueIndex != nil ? currentIndex + 1 : currentIndex
 
         if queue.indices.contains(nextIndex) {
             queueIndex = nextIndex
-            return queue[nextIndex].audioFile
+            return queue[nextIndex]
         }
 
+        // we're at the end of the queue
         if loopMode == .all {
             queueIndex = 0
-            return queue[0].audioFile
+            return queue[0]
         }
 
         return nil
     }
 
-    func playNext(track audioFile: AVAudioFile) {
-        playerNode.scheduleFile(audioFile, at: nil) {
-            // check and see if we have any other tracks to play
-            if let track = self.getNextTrack() {
-                self.playNext(track: track)
+    func play(track trackResource: TrackResource) {
+        if let url = trackResource.audioUrl {
+            if trackResource.isRemote {
+                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+            } else {
+                SAPlayer.shared.startSavedAudio(withSavedUrl: url)
             }
-        }
 
-        playerNode.play()
+            SAPlayer.shared.play()
+        }
+    }
+}
+
+// MARK: - SwiftAudioPlayer private subscriptions
+
+@available(iOS 15.0, *)
+private extension JustAudioPlayer {
+    func subscribeToPlayingStatusUpdates() {
+        playingStatusSubscription = SAPlayer.Updates.PlayingStatus
+            .subscribe { [weak self] playingStatus in
+
+                // Edge case:
+                // When playing a remote song, we often receive this sequence of statuses:
+                //
+                // buffering
+                // ended
+                // playing
+                //
+                // or worse:
+                //
+                // ended
+                // buffering
+                // playing
+                // To avoid going to the next song in these situations, we need to know if the current track is really playing
+
+                // TODO: remove when stable
+                print(playingStatus)
+
+                let convertedTrackStatus: TrackResourcePlayingStatus = TrackResourcePlayingStatus.fromSAPlayingStatus(playingStatus)
+
+                self?.currentTrack?.setPlayingStatus(convertedTrackStatus)
+
+                let currentTrackPlayingStatus = self?.currentTrack?.playingStatus ?? .idle
+
+                if currentTrackPlayingStatus == .ended {
+                    if let track = self?.tryMoveToNextTrack() {
+                        self?.play(track: track)
+                    }
+                }
+
+                // propagate status to subscribers
+                self?.isPlaying = currentTrackPlayingStatus == .playing
+            }
     }
 
-    // MARK: - Engine
-
-    // TODO: evaluate possible extrapolation to own engine class
-    // TODO: manage consecutive calls to this method: we should either have a state to decide what to do or expect to be in a "clean" state
-    private func setupEngine(withProcessingFormat processingFormat: AVAudioFormat) throws {
-        // Setup the engine:
-
-        // 1. attach the player
-        engine.attach(playerNode)
-
-        // 2. connect the player to the mixer (we need at least 1 access, even in read mode, to the mainMixerNode, otherwise the start will throw)
-        engine.connect(playerNode, to: engine.mainMixerNode, format: processingFormat)
-
-        engine.prepare()
-
-        do {
-            try engine.start()
-        } catch {
-            throw CouldNotStartEngineError(message: "Could not start the engine, check the cause for the full error", cause: error)
+    func unsubscribeUpdates() {
+        if let subscription = playingStatusSubscription {
+            SAPlayer.Updates.PlayingStatus.unsubscribe(subscription)
         }
     }
 }

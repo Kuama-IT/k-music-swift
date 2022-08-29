@@ -43,17 +43,10 @@ class ViewController: UIViewController {
             .assign(to: \.value, on: volumeSlider)
             .store(in: &cancellables)
 
-        do {
-            try ["nature.mp3", "AudioSource.mp3"].forEach { track in
+        jap.addTrack(TrackResource(uri: "https://ribgame.com/remote.mp3", isRemote: true))
 
-                let builder = try TrackResourceBuilder()
-                    .fromAsset(track)
-                let resource = try builder.build()
-                jap.addTrack(resource)
-            }
-
-        } catch {
-            handleError(error: error)
+        ["nature.mp3", "AudioSource.mp3"].forEach { track in
+            jap.addTrack(TrackResource(uri: track))
         }
     }
 
@@ -62,12 +55,8 @@ class ViewController: UIViewController {
             jap.pause()
             sender.setTitle("▶️", for: .normal)
         } else {
-            do {
-                try jap.play()
-                sender.setTitle("⏸", for: .normal)
-            } catch {
-                print(error.localizedDescription)
-            }
+            jap.play()
+            sender.setTitle("⏸", for: .normal)
         }
     }
 
