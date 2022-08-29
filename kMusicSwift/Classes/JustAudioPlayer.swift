@@ -35,47 +35,39 @@ public class JustAudioPlayer {
         playerNode.isPlaying
     }
 
+    public private(set) var loopMode: LoopMode = .off
+
     private let engine: AVAudioEngine = .init()
     private let playerNode: AVAudioPlayerNode = .init()
 
     // To be forwarded to the http client, in case we load a track from the internet
     var httpHeaders: [String: String] = [:]
 
+    /// Tracks which track is being reproduced
+    private var queueIndex: Int?
     private var queue: [TrackResource] = []
 
     public init() {}
 
     /// To be modified in order to handle multiple tracks at once
-    public func setTrack(_ track: TrackResource) {
+    public func addTrack(_ track: TrackResource) {
         queue.append(track)
     }
 
     public func setAudioSource(_: AudioSource) {}
 
-    // Play without waiting for completion
-    // Play while waiting for completion
-    public func play() {
-        // TODO: ensure we have something in queue or return
-        let inputFile = queue.first!.audioFile
-
-        // Setup the engine:
-
-        // 1. attach the player
-        engine.attach(playerNode)
-
-        // 2. connect the player to the mixer (we need at least 1 access, even in read mode, to the mainMixerNode, otherwise the start will throw)
-        engine.connect(playerNode, to: engine.mainMixerNode, format: inputFile.processingFormat)
-
-        engine.prepare()
-        do {
-            try engine.start()
-        } catch {
-            print("error: \(error.localizedDescription)")
+    /// Starts to play the current queue of the player
+    /// If the player is already playing, calling this method will result in a no-op
+    public func play() throws {
+        if isPlaying {
+            return
         }
 
-        playerNode.scheduleFile(inputFile, at: nil)
+        if let track = getNextTrack() {
+            try setupEngine(withProcessingFormat: track.processingFormat)
 
-        playerNode.play()
+            playNext(track: track)
+        }
     }
 
     // Pause but remain ready to play
@@ -134,4 +126,62 @@ public class JustAudioPlayer {
     // - volumeStream
     // - speedStream
     // - playbackEventStream
+
+    // MARK: - Queue
+
+    func getNextTrack() -> AVAudioFile? {
+        // side effect
+        let currentIndex = queueIndex ?? 0
+
+        if loopMode == LoopMode.one {
+            return queue[currentIndex].audioFile
+        }
+
+        let nextIndex = queueIndex != nil ? currentIndex + 1 : currentIndex
+
+        if queue.indices.contains(nextIndex) {
+            queueIndex = nextIndex
+            return queue[nextIndex].audioFile
+        }
+
+        if loopMode == .all {
+            queueIndex = 0
+            return queue[0].audioFile
+        }
+
+        return nil
+    }
+
+    func playNext(track audioFile: AVAudioFile) {
+        playerNode.scheduleFile(audioFile, at: nil) {
+            // check and see if we have any other tracks to play
+            if let track = self.getNextTrack() {
+                self.playNext(track: track)
+            }
+        }
+
+        playerNode.play()
+    }
+
+    // MARK: - Engine
+
+    // TODO: evaluate possible extrapolation to own engine class
+    // TODO: manage consecutive calls to this method: we should either have a state to decide what to do or expect to be in a "clean" state
+    private func setupEngine(withProcessingFormat processingFormat: AVAudioFormat) throws {
+        // Setup the engine:
+
+        // 1. attach the player
+        engine.attach(playerNode)
+
+        // 2. connect the player to the mixer (we need at least 1 access, even in read mode, to the mainMixerNode, otherwise the start will throw)
+        engine.connect(playerNode, to: engine.mainMixerNode, format: processingFormat)
+
+        engine.prepare()
+
+        do {
+            try engine.start()
+        } catch {
+            throw CouldNotStartEngineError(message: "Could not start the engine, check the cause for the full error", cause: error)
+        }
+    }
 }
