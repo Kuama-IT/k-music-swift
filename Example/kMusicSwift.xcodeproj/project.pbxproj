@@ -102,7 +102,7 @@
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				607FACD91AFB9204008FA782 /* Main.storyboard */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
-				8E2B18C928B92281005061EE /* nature.mp3 */,
+				8E6BA28F28BD0EBF005AB3AF /* nature.mp3 */,
 				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 			);
@@ -254,11 +254,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E6BA29028BD0EBF005AB3AF /* nature.mp3 in Resources */,
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				04DFEF3128BCA35A00DCE3DA /* AudioSource.mp3 in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
-				8E2B18CA28B92281005061EE /* nature.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

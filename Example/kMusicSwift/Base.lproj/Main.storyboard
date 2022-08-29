@@ -20,7 +20,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eLM-BE-EDl">
-                                <rect key="frame" x="8" y="299.5" width="359" height="68.5"/>
+                                <rect key="frame" x="153" y="299.5" width="69" height="68.5"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="68.5" id="gPb-dk-xRp"/>
                                 </constraints>
@@ -33,7 +33,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SyX-K9-cwb">
-                                <rect key="frame" x="8" y="418" width="359" height="68.5"/>
+                                <rect key="frame" x="153" y="418" width="69" height="68.5"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="⏹">
                                     <fontDescription key="titleFontDescription" type="system" weight="black" pointSize="40"/>
@@ -42,14 +42,8 @@
                                     <action selector="onStop:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="33T-ND-LUi"/>
                                 </connections>
                             </button>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="mlc-CR-ltn">
-                                <rect key="frame" x="6" y="536.5" width="363" height="31"/>
-                                <connections>
-                                    <action selector="onVolumeChanged:" destination="vXZ-lx-hvc" eventType="valueChanged" id="B2b-gx-c5Q"/>
-                                </connections>
-                            </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tt1-28-RZk">
-                                <rect key="frame" x="8" y="181" width="359" height="68.5"/>
+                                <rect key="frame" x="153" y="181" width="69" height="68.5"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="68.5" id="uq9-dd-S5Z"/>
                                 </constraints>
@@ -61,21 +55,40 @@
                                     <action selector="onLoopMode:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="RKe-xJ-vIT"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J4O-bw-woF">
+                                <rect key="frame" x="290" y="299.5" width="69" height="68.5"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="⏭">
+                                    <fontDescription key="titleFontDescription" type="boldSystem" pointSize="40"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="onNext:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="gKi-TW-xIp"/>
+                                </connections>
+                            </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="mlc-CR-ltn">
+                                <rect key="frame" x="6" y="536.5" width="363" height="31"/>
+                                <connections>
+                                    <action selector="onVolumeChanged:" destination="vXZ-lx-hvc" eventType="valueChanged" id="B2b-gx-c5Q"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="Tt1-28-RZk" firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" id="AKh-oQ-yi0"/>
+                            <constraint firstItem="J4O-bw-woF" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="trailing" constant="68" id="3Vr-7O-7Ci"/>
+                            <constraint firstItem="SyX-K9-cwb" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="CIe-XW-OPW"/>
+                            <constraint firstItem="J4O-bw-woF" firstAttribute="bottom" secondItem="eLM-BE-EDl" secondAttribute="bottom" id="E9g-4R-ZOG"/>
+                            <constraint firstItem="Tt1-28-RZk" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="EVv-4a-OIu"/>
+                            <constraint firstItem="J4O-bw-woF" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="top" id="GZN-Fb-FV1"/>
+                            <constraint firstAttribute="trailing" secondItem="mlc-CR-ltn" secondAttribute="trailing" constant="8" id="Hgp-cf-A4w"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="Iza-na-OS9"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="top" secondItem="Tt1-28-RZk" secondAttribute="bottom" constant="50" id="KaC-HX-LN9"/>
                             <constraint firstItem="mlc-CR-ltn" firstAttribute="top" secondItem="SyX-K9-cwb" secondAttribute="bottom" constant="50" id="Lg8-hh-gjQ"/>
                             <constraint firstItem="SyX-K9-cwb" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="bottom" constant="50" id="NOB-4b-OQb"/>
-                            <constraint firstItem="SyX-K9-cwb" firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" id="Tgn-ku-B0U"/>
-                            <constraint firstItem="mlc-CR-ltn" firstAttribute="trailing" secondItem="SyX-K9-cwb" secondAttribute="trailing" id="Xgx-j9-GHv"/>
-                            <constraint firstItem="SyX-K9-cwb" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="leading" id="bYh-HX-gO8"/>
-                            <constraint firstItem="mlc-CR-ltn" firstAttribute="leading" secondItem="SyX-K9-cwb" secondAttribute="leading" id="c3b-x4-Kcv"/>
-                            <constraint firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" constant="8" id="qFu-Ay-I0h"/>
-                            <constraint firstItem="Tt1-28-RZk" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="leading" id="uNu-hU-Yvc"/>
-                            <constraint firstItem="eLM-BE-EDl" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="vzr-Qz-oeC"/>
+                            <constraint firstItem="J4O-bw-woF" firstAttribute="width" secondItem="eLM-BE-EDl" secondAttribute="width" id="YId-JT-yTY"/>
+                            <constraint firstItem="eLM-BE-EDl" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="YWQ-15-OAt"/>
+                            <constraint firstItem="J4O-bw-woF" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="akz-pU-q0g"/>
+                            <constraint firstItem="mlc-CR-ltn" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="eJp-lB-CVX"/>
+                            <constraint firstAttribute="trailing" secondItem="J4O-bw-woF" secondAttribute="trailing" constant="16" id="hgf-8T-SJ3"/>
                         </constraints>
                     </view>
                     <connections>

@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     @IBOutlet var playOrPauseBtn: UIButton!
     @IBOutlet var stopBtn: UIButton!
     @IBOutlet var loopModeBtn: UIButton!
+    @IBOutlet var nextBtn: UIButton!
     @IBOutlet var volumeSlider: UISlider!
 
     var cancellables: [AnyCancellable] = []
@@ -43,8 +44,8 @@ class ViewController: UIViewController {
             .assign(to: \.value, on: volumeSlider)
             .store(in: &cancellables)
 
-        jap.addTrack(TrackResource(uri: "https://ribgame.com/remote.mp3", isRemote: true))
-
+        jap.addTrack(TrackResource(uri: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3", isRemote: true))
+        jap.addTrack(TrackResource(uri: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", isRemote: true))
         ["nature.mp3", "AudioSource.mp3"].forEach { track in
             jap.addTrack(TrackResource(uri: track))
         }
@@ -58,6 +59,10 @@ class ViewController: UIViewController {
             jap.play()
             sender.setTitle("⏸", for: .normal)
         }
+    }
+
+    @IBAction func onNext(_: Any) {
+        jap.seekToNext()
     }
 
     @IBAction func onLoopMode(_: Any) {
