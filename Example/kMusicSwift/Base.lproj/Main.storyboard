@@ -1,67 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
-  <device id="retina4_7" orientation="portrait" appearance="light"/>
-  <dependencies>
-    <deployment identifier="iOS"/>
-    <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
-    <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
-  </dependencies>
-  <scenes>
-    <!--View Controller-->
-    <scene sceneID="ufC-wZ-h7g">
-      <objects>
-        <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="kMusicSwift_Example" customModuleProvider="target" sceneMemberID="viewController">
-          <layoutGuides>
-            <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
-            <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
-          </layoutGuides>
-          <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <subviews>
-              <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eLM-BE-EDl">
-                <rect key="frame" x="8" y="299.5" width="359" height="68.5"/>
-                <constraints>
-                  <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="68.5" id="gPb-dk-xRp"/>
-                </constraints>
-                <state key="normal" title="Button"/>
-                <buttonConfiguration key="configuration" style="plain" title="▶️">
-                  <fontDescription key="titleFontDescription" type="system" weight="black" pointSize="40"/>
-                </buttonConfiguration>
-                <connections>
-                  <action selector="onPlayOrPauseWithSender:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="qpE-bn-UU4"/>
-                </connections>
-              </button>
-              <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SyX-K9-cwb">
-                <rect key="frame" x="8" y="418" width="359" height="68.5"/>
-                <state key="normal" title="Button"/>
-                <buttonConfiguration key="configuration" style="plain" title="⏹">
-                  <fontDescription key="titleFontDescription" type="system" weight="black" pointSize="40"/>
-                </buttonConfiguration>
-                <connections>
-                  <action selector="onStop:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="33T-ND-LUi"/>
-                </connections>
-              </button>
-            </subviews>
-            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-            <constraints>
-              <constraint firstItem="eLM-BE-EDl" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="Iza-na-OS9"/>
-              <constraint firstItem="SyX-K9-cwb" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="bottom" constant="50" id="NOB-4b-OQb"/>
-              <constraint firstItem="SyX-K9-cwb" firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" id="Tgn-ku-B0U"/>
-              <constraint firstItem="SyX-K9-cwb" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="leading" id="bYh-HX-gO8"/>
-              <constraint firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" constant="8" id="qFu-Ay-I0h"/>
-              <constraint firstItem="eLM-BE-EDl" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="vzr-Qz-oeC"/>
-            </constraints>
-          </view>
-          <connections>
-            <outlet property="playOrPauseBtn" destination="eLM-BE-EDl" id="DRv-1P-hJL"/>
-            <outlet property="stopBtn" destination="SyX-K9-cwb" id="2E1-qF-TTT"/>
-            <outlet property="view" destination="eLM-BE-EDl" id="C8o-SW-VBb"/>
-          </connections>
-        </viewController>
-        <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
-      </objects>
-      <point key="canvasLocation" x="136.80000000000001" y="127.28635682158921"/>
-    </scene>
-  </scenes>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="kMusicSwift_Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
+                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eLM-BE-EDl">
+                                <rect key="frame" x="8" y="299.5" width="359" height="68.5"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="68.5" id="gPb-dk-xRp"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="▶️">
+                                    <fontDescription key="titleFontDescription" type="system" weight="black" pointSize="40"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="onPlayOrPauseWithSender:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="qpE-bn-UU4"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SyX-K9-cwb">
+                                <rect key="frame" x="8" y="418" width="359" height="68.5"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="⏹">
+                                    <fontDescription key="titleFontDescription" type="system" weight="black" pointSize="40"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="onStop:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="33T-ND-LUi"/>
+                                </connections>
+                            </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="mlc-CR-ltn">
+                                <rect key="frame" x="6" y="536.5" width="363" height="31"/>
+                                <connections>
+                                    <action selector="onVolumeChanged:" destination="vXZ-lx-hvc" eventType="valueChanged" id="B2b-gx-c5Q"/>
+                                </connections>
+                            </slider>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="eLM-BE-EDl" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="Iza-na-OS9"/>
+                            <constraint firstItem="mlc-CR-ltn" firstAttribute="top" secondItem="SyX-K9-cwb" secondAttribute="bottom" constant="50" id="Lg8-hh-gjQ"/>
+                            <constraint firstItem="SyX-K9-cwb" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="bottom" constant="50" id="NOB-4b-OQb"/>
+                            <constraint firstItem="SyX-K9-cwb" firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" id="Tgn-ku-B0U"/>
+                            <constraint firstItem="mlc-CR-ltn" firstAttribute="trailing" secondItem="SyX-K9-cwb" secondAttribute="trailing" id="Xgx-j9-GHv"/>
+                            <constraint firstItem="SyX-K9-cwb" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="leading" id="bYh-HX-gO8"/>
+                            <constraint firstItem="mlc-CR-ltn" firstAttribute="leading" secondItem="SyX-K9-cwb" secondAttribute="leading" id="c3b-x4-Kcv"/>
+                            <constraint firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" constant="8" id="qFu-Ay-I0h"/>
+                            <constraint firstItem="eLM-BE-EDl" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="vzr-Qz-oeC"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="playOrPauseBtn" destination="eLM-BE-EDl" id="DRv-1P-hJL"/>
+                        <outlet property="stopBtn" destination="SyX-K9-cwb" id="2E1-qF-TTT"/>
+                        <outlet property="view" destination="eLM-BE-EDl" id="C8o-SW-VBb"/>
+                        <outlet property="volumeSlider" destination="mlc-CR-ltn" id="N11-vc-qZM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="136.80000000000001" y="127.28635682158921"/>
+        </scene>
+    </scenes>
 </document>

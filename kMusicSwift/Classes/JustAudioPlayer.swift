@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import Darwin
 import Foundation
 
@@ -46,6 +47,9 @@ public class JustAudioPlayer {
     /// Tracks which track is being reproduced
     private var queueIndex: Int?
     private var queue: [TrackResource] = []
+
+    // player node volume value
+    @Published public private(set) var volume: Float?
 
     public init() {}
 
@@ -104,7 +108,15 @@ public class JustAudioPlayer {
         // AVAudioTime.init(audioTimeStamp: UnsafePointer<AudioTimeStamp>, sampleRate: Double)
     }
 
-    public func setVolume(_: Float) {}
+    // set the node volume
+    // N.B. it is the player node volume value, not the device's one
+    public func setVolume(_ volume: Float) throws {
+        guard volume >= 0.0 || volume <= 1.0 else {
+            throw VolumeValueNotValid(value: volume)
+        }
+        self.volume = volume
+        playerNode.volume = volume
+    }
 
     public func setLoopMode(_: LoopMode) {}
 
