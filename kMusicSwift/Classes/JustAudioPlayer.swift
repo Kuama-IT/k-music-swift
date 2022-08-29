@@ -33,6 +33,11 @@ public enum LoopMode {
 
 @available(iOS 15.0, *)
 public class JustAudioPlayer {
+    // represent the time that must elapse before choose to restart a song
+    // or seek to the previous one
+    // in second
+    private static let ELAPSED_TIME_TO_RESTART_A_SONG = 5.0
+    
     // whether we're currently playing a song
     @Published public private(set) var isPlaying: Bool = false
 
@@ -124,8 +129,10 @@ public class JustAudioPlayer {
         }
     }
 
-    // TODO: Skip to the previous item
-    public func seekToPrevious() {}
+    // Skip to the previous item
+    public func seekToPrevious() {
+        play(track: tryMoveToPreviousTrack())
+    }
 
     // TODO:
     public func setShuffleModeEnabled() {}
@@ -229,6 +236,38 @@ public class JustAudioPlayer {
 
         // undetermined case, should never happens
         return nil
+    }
+
+    /*
+     * always try to push back the player
+     * no edge cases
+     */
+    func tryMoveToPreviousTrack() -> TrackResource {
+        guard queue.count > 1 else {
+            preconditionFailure("no track has been set")
+        }
+        let currentIndex = queueIndex ?? 0
+        // if track is playing for more than 5 second, restart the current track
+        if SAPlayer.shared.elapsedTime ?? 0 >= JustAudioPlayer.ELAPSED_TIME_TO_RESTART_A_SONG {
+            queueIndex = currentIndex
+            return queue[currentIndex]
+        }
+
+        let previousIndex = currentIndex - 1
+
+        if previousIndex == -1 {
+            // first song and want to go back to end of the queue
+            queueIndex = queue.count - 1
+            return queue[queueIndex!]
+        }
+
+        if queue.indices.contains(previousIndex) {
+            queueIndex = previousIndex
+            return queue[previousIndex]
+        }
+
+        queueIndex = previousIndex
+        return queue[previousIndex]
     }
 
     func play(track trackResource: TrackResource) {
