@@ -31,6 +31,10 @@ public enum LoopMode {
 
 @available(iOS 15.0, *)
 public class JustAudioPlayer {
+    public var isPlaying: Bool {
+        playerNode.isPlaying
+    }
+
     private let engine: AVAudioEngine = .init()
     private let playerNode: AVAudioPlayerNode = .init()
 
@@ -81,6 +85,7 @@ public class JustAudioPlayer {
     }
 
     public func stop() {
+        queue.removeAll()
         playerNode.stop()
         engine.stop()
     }
