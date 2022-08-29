@@ -13,6 +13,8 @@ import UIKit
 @available(iOS 15.0, *)
 class ViewController: UIViewController {
     let jap = JustAudioPlayer()
+    @IBOutlet var playOrPauseBtn: UIButton!
+    @IBOutlet var stopBtn: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,11 +33,19 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func onPlay(_: Any) {
-        jap.play()
+    @IBAction func onPlayOrPause(sender: UIButton) {
+        if jap.isPlaying {
+            jap.pause()
+            sender.setTitle("Play", for: .normal)
+        } else {
+            jap.play()
+            sender.setTitle("Pause", for: .normal)
+        }
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    @IBAction func onStop(_: Any) {
+        jap.stop()
+        playOrPauseBtn.setTitle("Play", for: .normal)
+        // TODO: reset the jap's queue tracks after stop, otherwise it will not work
     }
 }
