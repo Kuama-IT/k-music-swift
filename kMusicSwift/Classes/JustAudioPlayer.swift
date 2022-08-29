@@ -117,8 +117,12 @@ public class JustAudioPlayer {
     // TODO: Jump to the 10 second position
     public func seek(second _: TimeInterval, index _: Int?) {}
 
-    // TODO: Skip to the next item
-    public func seekToNext() {}
+    // Skip to the next item
+    public func seekToNext() {
+        if let track = tryMoveToNextTrack() {
+            play(track: track)
+        }
+    }
 
     // TODO: Skip to the previous item
     public func seekToPrevious() {}
