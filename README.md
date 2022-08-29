@@ -1,9 +1,7 @@
 # kMusicSwift
 
-[![CI Status](https://img.shields.io/travis/cc18675dd6a3d8f9dd752f1bc3bc9210bda2938e/kMusicSwift.svg?style=flat)](https://travis-ci.org/cc18675dd6a3d8f9dd752f1bc3bc9210bda2938e/kMusicSwift)
-[![Version](https://img.shields.io/cocoapods/v/kMusicSwift.svg?style=flat)](https://cocoapods.org/pods/kMusicSwift)
-[![License](https://img.shields.io/cocoapods/l/kMusicSwift.svg?style=flat)](https://cocoapods.org/pods/kMusicSwift)
-[![Platform](https://img.shields.io/cocoapods/p/kMusicSwift.svg?style=flat)](https://cocoapods.org/pods/kMusicSwift)
+[![Test And Lint](https://github.com/Kuama-IT/k-music-swift/actions/workflows/main.yml/badge.svg)](https://github.com/Kuama-IT/k-music-swift/actions/workflows/main.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Example
 
