@@ -36,7 +36,11 @@ public class JustAudioPlayer {
         playerNode.isPlaying
     }
 
-    public private(set) var loopMode: LoopMode = .off
+    // the current loop mode
+    @Published public private(set) var loopMode: LoopMode = .off
+
+    // player node volume value
+    @Published public private(set) var volume: Float?
 
     private let engine: AVAudioEngine = .init()
     private let playerNode: AVAudioPlayerNode = .init()
@@ -47,9 +51,6 @@ public class JustAudioPlayer {
     /// Tracks which track is being reproduced
     private var queueIndex: Int?
     private var queue: [TrackResource] = []
-
-    // player node volume value
-    @Published public private(set) var volume: Float?
 
     public init() {}
 
@@ -118,7 +119,22 @@ public class JustAudioPlayer {
         playerNode.volume = volume
     }
 
-    public func setLoopMode(_: LoopMode) {}
+    // Set the loop mode
+    public func setLoopMode(_ loopMode: LoopMode) {
+        self.loopMode = loopMode
+    }
+
+    // set the next loop mode
+    public func setNextLoopMode() {
+        switch loopMode {
+        case .off:
+            loopMode = .one
+        case .one:
+            loopMode = .all
+        case .all:
+            loopMode = .off
+        }
+    }
 
     public func setClip(start _: TimeInterval? = nil, end _: TimeInterval? = nil) {}
 

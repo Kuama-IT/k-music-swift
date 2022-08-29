@@ -48,10 +48,25 @@
                                     <action selector="onVolumeChanged:" destination="vXZ-lx-hvc" eventType="valueChanged" id="B2b-gx-c5Q"/>
                                 </connections>
                             </slider>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tt1-28-RZk">
+                                <rect key="frame" x="8" y="181" width="359" height="68.5"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="68.5" id="uq9-dd-S5Z"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="🔁">
+                                    <fontDescription key="titleFontDescription" type="system" weight="black" pointSize="40"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="onLoopMode:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="RKe-xJ-vIT"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="Tt1-28-RZk" firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" id="AKh-oQ-yi0"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="Iza-na-OS9"/>
+                            <constraint firstItem="eLM-BE-EDl" firstAttribute="top" secondItem="Tt1-28-RZk" secondAttribute="bottom" constant="50" id="KaC-HX-LN9"/>
                             <constraint firstItem="mlc-CR-ltn" firstAttribute="top" secondItem="SyX-K9-cwb" secondAttribute="bottom" constant="50" id="Lg8-hh-gjQ"/>
                             <constraint firstItem="SyX-K9-cwb" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="bottom" constant="50" id="NOB-4b-OQb"/>
                             <constraint firstItem="SyX-K9-cwb" firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" id="Tgn-ku-B0U"/>
@@ -59,10 +74,12 @@
                             <constraint firstItem="SyX-K9-cwb" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="leading" id="bYh-HX-gO8"/>
                             <constraint firstItem="mlc-CR-ltn" firstAttribute="leading" secondItem="SyX-K9-cwb" secondAttribute="leading" id="c3b-x4-Kcv"/>
                             <constraint firstAttribute="trailing" secondItem="eLM-BE-EDl" secondAttribute="trailing" constant="8" id="qFu-Ay-I0h"/>
+                            <constraint firstItem="Tt1-28-RZk" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="leading" id="uNu-hU-Yvc"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="vzr-Qz-oeC"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="loopModeBtn" destination="Tt1-28-RZk" id="7qw-qt-NO9"/>
                         <outlet property="playOrPauseBtn" destination="eLM-BE-EDl" id="DRv-1P-hJL"/>
                         <outlet property="stopBtn" destination="SyX-K9-cwb" id="2E1-qF-TTT"/>
                         <outlet property="view" destination="eLM-BE-EDl" id="C8o-SW-VBb"/>

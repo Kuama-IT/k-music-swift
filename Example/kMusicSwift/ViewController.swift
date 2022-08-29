@@ -16,11 +16,26 @@ class ViewController: UIViewController {
     let jap = JustAudioPlayer()
     @IBOutlet var playOrPauseBtn: UIButton!
     @IBOutlet var stopBtn: UIButton!
+    @IBOutlet var loopModeBtn: UIButton!
     @IBOutlet var volumeSlider: UISlider!
 
     var cancellables: [AnyCancellable] = []
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        jap.$loopMode
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: {
+                switch $0 {
+                case .off:
+                    self.loopModeBtn.setTitle("📴", for: .normal)
+                case .one:
+                    self.loopModeBtn.setTitle("🔂", for: .normal)
+                case .all:
+                    self.loopModeBtn.setTitle("🔁", for: .normal)
+                }
+            }).store(in: &cancellables)
 
         jap.$volume
             .compactMap { $0 }
@@ -54,6 +69,10 @@ class ViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
+    }
+
+    @IBAction func onLoopMode(_: Any) {
+        jap.setNextLoopMode()
     }
 
     @IBAction func onStop(_: Any) {
