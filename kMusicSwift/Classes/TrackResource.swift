@@ -31,7 +31,7 @@ public class TrackResourceBuilder {
     @discardableResult
     public func fromAsset(_ asset: String) throws -> TrackResourceBuilder {
         guard let inputFileUrl = Bundle.main.url(forResource: asset, withExtension: "") else {
-            throw JustAudioPlayerError.couldNotFindAsset
+            throw CouldNotFindAssetError(message: "input file url: \(inputFileUrl?.description ?? "nil"), asset: \(asset)", cause: nil)
         }
 
         self.inputFileUrl = inputFileUrl
@@ -47,7 +47,7 @@ public class TrackResourceBuilder {
 
         // Load the track inside a AVAudioFile
         guard let inputFile = try? AVAudioFile(forReading: inputFileUrl) else {
-            throw JustAudioPlayerError.couldNotLoadUrlIntoTrackResource
+            throw CouldNotLoadUrlIntoTrackResourceError(message: "input file url: \(inputFileUrl.description)", cause: nil)
         }
 
         return TrackResource(audioFile: inputFile)

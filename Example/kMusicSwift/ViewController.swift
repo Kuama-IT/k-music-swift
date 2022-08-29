@@ -24,12 +24,12 @@ class ViewController: UIViewController {
                 .fromAsset("AudioSource.mp3")
             let resource = try builder.build()
             jap.setTrack(resource)
-        } catch JustAudioPlayerError.couldNotFindAsset {
-            print("couldNotFindAsset")
-        } catch JustAudioPlayerError.couldNotLoadUrlIntoTrackResource {
-            print("couldNotLoadUrlIntoTrackResource")
         } catch {
-            print(error.localizedDescription)
+            if let error = error as? BaseError {
+                print(error.description)
+            } else {
+                print(error.localizedDescription)
+            }
         }
     }
 
