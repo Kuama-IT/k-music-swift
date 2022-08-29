@@ -17,11 +17,3 @@ it, simply add the following line to your Podfile:
 ```ruby
 pod 'kMusicSwift'
 ```
-
-## Author
-
-cc18675dd6a3d8f9dd752f1bc3bc9210bda2938e, daniele@kuama.net
-
-## License
-
-kMusicSwift is available under the MIT license. See the LICENSE file for more info.

@@ -20,10 +20,14 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         do {
-            let builder = try TrackResourceBuilder()
-                .fromAsset("AudioSource.mp3")
-            let resource = try builder.build()
-            jap.setTrack(resource)
+            try ["nature.mp3", "AudioSource.mp3"].forEach { track in
+
+                let builder = try TrackResourceBuilder()
+                    .fromAsset(track)
+                let resource = try builder.build()
+                jap.addTrack(resource)
+            }
+
         } catch {
             if let error = error as? BaseError {
                 print(error.description)
@@ -36,16 +40,20 @@ class ViewController: UIViewController {
     @IBAction func onPlayOrPause(sender: UIButton) {
         if jap.isPlaying {
             jap.pause()
-            sender.setTitle("Play", for: .normal)
+            sender.setTitle("▶️", for: .normal)
         } else {
-            jap.play()
-            sender.setTitle("Pause", for: .normal)
+            do {
+                try jap.play()
+                sender.setTitle("⏸", for: .normal)
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
 
     @IBAction func onStop(_: Any) {
         jap.stop()
-        playOrPauseBtn.setTitle("Play", for: .normal)
+        playOrPauseBtn.setTitle("▶️", for: .normal)
         // TODO: reset the jap's queue tracks after stop, otherwise it will not work
     }
 }
