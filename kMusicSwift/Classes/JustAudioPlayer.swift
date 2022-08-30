@@ -48,13 +48,22 @@ public enum LoopMode {
     case all
 }
 
+/// Enumerates the different processing states of a player.
+public enum ProcessingState {
+    case none
+    case loading
+    case buffering
+    case ready
+    case completed
+}
+
 @available(iOS 15.0, *)
 public class JustAudioPlayer {
     // represent the time that must elapse before choose to restart a song
     // or seek to the previous one
     // in second
     private static let ELAPSED_TIME_TO_RESTART_A_SONG = 5.0
-    
+
     // whether we're currently playing a song
     @Published public private(set) var isPlaying: Bool = false
 
@@ -66,6 +75,9 @@ public class JustAudioPlayer {
 
     // buffer duration
     @Published public private(set) var bufferPosition: Double?
+
+    // processing state
+    @Published public private(set) var processingState: ProcessingState = .none
 
     // forwarded to the SAPlayer http client, in case we load a track from the internet and need to set some headers
     var httpHeaders: [String: String] = [:] {
@@ -111,24 +123,31 @@ public class JustAudioPlayer {
         guard let node = SAPlayer.shared.playerNode else {
             // first time to play a song
             if let track = tryMoveToNextTrack() {
+                processingState = .loading
                 play(track: track)
+            } else {
+                processingState = .completed
             }
             return
         }
+
         if node.isPlaying {
             return
         } else {
             // player node is in pause
+            processingState = .loading
             SAPlayer.shared.play()
         }
     }
 
     // Pause but remain ready to play
     public func pause() {
+        processingState = .ready
         SAPlayer.shared.pause()
     }
 
     public func stop() {
+        processingState = .none
         SAPlayer.shared.stopStreamingRemoteAudio()
         SAPlayer.shared.playerNode?.stop()
         SAPlayer.shared.engine?.stop()
@@ -315,15 +334,25 @@ private extension JustAudioPlayer {
                 let currentTrackPlayingStatus = self?.currentTrack?.playingStatus ?? .idle
 
                 print("current: \(currentTrackPlayingStatus)")
+                if currentTrackPlayingStatus == .buffering {
+                    self?.processingState = .buffering
+                }
 
                 if currentTrackPlayingStatus == .ended {
                     if let track = self?.tryMoveToNextTrack() {
                         self?.play(track: track)
                     }
+                } else {
+                    self?.processingState = .completed
                 }
 
                 // propagate status to subscribers
                 self?.isPlaying = currentTrackPlayingStatus == .playing
+
+                // As seen on Android
+                if self?.isPlaying == true {
+                    self?.processingState = .ready
+                }
             }
     }
 
