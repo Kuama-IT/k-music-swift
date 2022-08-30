@@ -119,7 +119,7 @@ public class JustAudioPlayer {
 
     // Skip to the next item
     public func seekToNext() {
-        if let track = tryMoveToNextTrack() {
+        if let track = tryMoveToNextTrack(isForced: true) {
             play(track: track)
         }
     }
@@ -191,30 +191,43 @@ public class JustAudioPlayer {
 
     // MARK: - Queue
 
-    /// Tries to move the queue index to the next track.
-    /// If we're on the last track of the queue or the queue is empty, the queueIndex will not change
-    func tryMoveToNextTrack() -> TrackResource? {
+    /**
+     * Tries to move the queue index to the next track.
+     * If we're on the last track of the queue or the queue is empty, the queueIndex will not change.
+     * `LoopMode.one` works only when a track finishes by itself.
+     * - Parameter isForced: whether the next song must be played (ex. seek to next)
+     */
+    func tryMoveToNextTrack(isForced: Bool = false) -> TrackResource? {
         let currentIndex = queueIndex ?? 0
 
-        // do not change the index, and return the current track
-        if loopMode == LoopMode.one {
-            queueIndex = currentIndex
-            return queue[currentIndex]
+        if !isForced {
+            // do not change the index, and return the current track
+            if loopMode == LoopMode.one {
+                queueIndex = currentIndex
+                return queue[currentIndex]
+            }
         }
-
         let nextIndex = queueIndex != nil ? currentIndex + 1 : currentIndex
 
+        // simply, the next track available
         if queue.indices.contains(nextIndex) {
             queueIndex = nextIndex
             return queue[nextIndex]
         }
 
-        // we're at the end of the queue
-        if loopMode == .all {
+        // stop the player when we're at the end of the queue and is not forced the seek
+        if loopMode == .off && !isForced {
+            queueIndex = nil
+            return nil
+        }
+
+        // we're at the end of the queue, automatically go back to the first element
+        if loopMode == .all || isForced {
             queueIndex = 0
             return queue[0]
         }
 
+        // undetermined case, should never happens
         return nil
     }
 
@@ -261,6 +274,8 @@ private extension JustAudioPlayer {
                 self?.currentTrack?.setPlayingStatus(convertedTrackStatus)
 
                 let currentTrackPlayingStatus = self?.currentTrack?.playingStatus ?? .idle
+
+                print("current: \(currentTrackPlayingStatus)")
 
                 if currentTrackPlayingStatus == .ended {
                     if let track = self?.tryMoveToNextTrack() {
