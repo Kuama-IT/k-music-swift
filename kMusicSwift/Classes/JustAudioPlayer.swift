@@ -80,8 +80,18 @@ public class JustAudioPlayer {
     /// Starts to play the current queue of the player
     /// If the player is already playing, calling this method will result in a no-op
     public func play() {
-        if let track = tryMoveToNextTrack() {
-            play(track: track)
+        guard let node = SAPlayer.shared.playerNode else {
+            // first time to play a song
+            if let track = tryMoveToNextTrack() {
+                play(track: track)
+            }
+            return
+        }
+        if node.isPlaying {
+            return
+        } else {
+            // player node is in pause
+            SAPlayer.shared.play()
         }
     }
 
@@ -175,6 +185,7 @@ public class JustAudioPlayer {
 
         // do not change the index, and return the current track
         if loopMode == LoopMode.one {
+            queueIndex = currentIndex
             return queue[currentIndex]
         }
 

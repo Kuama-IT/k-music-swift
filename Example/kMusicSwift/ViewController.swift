@@ -13,7 +13,7 @@ import UIKit
 
 @available(iOS 15.0, *)
 class ViewController: UIViewController {
-    let jap = JustAudioPlayer()
+    private lazy var jap = JustAudioPlayer()
     @IBOutlet var playOrPauseBtn: UIButton!
     @IBOutlet var stopBtn: UIButton!
     @IBOutlet var loopModeBtn: UIButton!
