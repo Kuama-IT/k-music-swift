@@ -42,8 +42,12 @@ public class JustAudioPlayer {
     // player node volume value
     @Published public private(set) var volume: Float?
 
-    // TODO: to be forwarded to the http client, in case we load a track from the internet
-    var httpHeaders: [String: String] = [:]
+    // forwarded to the SAPlayer http client, in case we load a track from the internet and need to set some headers
+    var httpHeaders: [String: String] = [:] {
+        didSet {
+            SAPlayer.shared.HTTPHeaderFields = httpHeaders
+        }
+    }
 
     /// Tracks which track is being reproduced
     private var queueIndex: Int?
