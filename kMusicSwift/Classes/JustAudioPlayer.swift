@@ -331,7 +331,7 @@ private extension JustAudioPlayer {
         streamingBufferSubscription = SAPlayer.Updates.StreamingBuffer
             .subscribe { [weak self] buffer in
                 // TODO: once we hook to the UI verify this is the correct value to proxy
-                self?.bufferPosition = buffer.totalDurationBuffered
+                self?.bufferPosition = buffer.bufferingProgress
             }
     }
 
