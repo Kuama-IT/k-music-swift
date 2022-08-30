@@ -42,7 +42,10 @@ class ViewController: UIViewController {
                 guard let self = self else { return }
                 let rounded = RoundingHelper.preciseRound(elapsed, precision: .hundredths)
                 self.seekLabel.text = "Time in seconds elapsed in seconds: \(rounded)"
-                self.seekSlider.value = Float(elapsed)
+                if !self.seekSlider.isTracking {
+                    self.seekSlider.value = Float(elapsed)
+                }
+
             }).store(in: &cancellables)
 
         jap.$loopMode
@@ -113,7 +116,9 @@ class ViewController: UIViewController {
     }
 
     @IBAction func onSeekChanged(_ sender: UISlider) {
-        jap.seek(second: Double(sender.value))
+        if !sender.isTracking {
+            jap.seek(second: Double(sender.value))
+        }
     }
 
     @IBAction func onVolumeChanged(_ sender: UISlider) {
