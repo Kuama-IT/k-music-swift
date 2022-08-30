@@ -19,10 +19,31 @@ class ViewController: UIViewController {
     @IBOutlet var loopModeBtn: UIButton!
     @IBOutlet var nextBtn: UIButton!
     @IBOutlet var volumeSlider: UISlider!
+    @IBOutlet var seekSlider: UISlider!
+    @IBOutlet var volumeLabel: UILabel!
+    @IBOutlet var seekLabel: UILabel!
 
     var cancellables: [AnyCancellable] = []
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        jap.$duration
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] duration in
+                guard let self = self else { return }
+                self.seekSlider.maximumValue = Float(duration)
+            }).store(in: &cancellables)
+
+        jap.$elapsedTime
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] elapsed in
+                guard let self = self else { return }
+                let rounded = RoundingHelper.preciseRound(elapsed, precision: .hundredths)
+                self.seekLabel.text = "Time in seconds elapsed in seconds: \(rounded)"
+                self.seekSlider.value = Float(elapsed)
+            }).store(in: &cancellables)
 
         jap.$loopMode
             .compactMap { $0 }
@@ -41,8 +62,13 @@ class ViewController: UIViewController {
         jap.$volume
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
-            .assign(to: \.value, on: volumeSlider)
-            .store(in: &cancellables)
+            .sink(receiveValue: { [weak self] volume in
+                guard let self = self else { return }
+                self.volumeSlider.value = volume
+                let rounded = RoundingHelper.preciseRound(Double(volume), precision: .hundredths) * 10.0
+                self.volumeLabel.text = "Volume: \(rounded)/10"
+
+            }).store(in: &cancellables)
 
         jap.addTrack(TrackResource(uri: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3", isRemote: true))
 
@@ -50,6 +76,12 @@ class ViewController: UIViewController {
             jap.addTrack(TrackResource(uri: track))
         }
         jap.addTrack(TrackResource(uri: "https://ribgame.com/remote.mp3", isRemote: true))
+
+        do {
+            try jap.setVolume(0.1)
+        } catch {
+            handleError(error: error)
+        }
     }
 
     @IBAction func onPlayOrPause(sender: UIButton) {
@@ -78,6 +110,10 @@ class ViewController: UIViewController {
         jap.stop()
         playOrPauseBtn.setTitle("▶️", for: .normal)
         // TODO: reset the jap's queue tracks after stop, otherwise it will not work
+    }
+
+    @IBAction func onSeekChanged(_ sender: UISlider) {
+        jap.seek(second: Double(sender.value))
     }
 
     @IBAction func onVolumeChanged(_ sender: UISlider) {

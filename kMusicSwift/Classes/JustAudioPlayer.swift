@@ -27,8 +27,8 @@ import SwiftAudioPlayer
 
 // Streams (event channels)
 // - playerStateStream
-// - durationStream
-// - positionStream
+// - durationStream✅✅
+// - positionStream✅✅
 // - bufferedPositionStream ✅✅
 // - sequenceStateStream
 // - sequenceStream
@@ -76,8 +76,14 @@ public class JustAudioPlayer {
     // buffer duration
     @Published public private(set) var bufferPosition: Double?
 
+    // track duration
+    @Published public private(set) var duration: Double?
+
     // processing state
     @Published public private(set) var processingState: ProcessingState = .none
+
+    // elapsed time
+    @Published public private(set) var elapsedTime: Double?
 
     // forwarded to the SAPlayer http client, in case we load a track from the internet and need to set some headers
     var httpHeaders: [String: String] = [:] {
@@ -103,11 +109,12 @@ public class JustAudioPlayer {
 
     // Notification subscriptions
     private var playingStatusSubscription: UInt?
+    private var elapsedTimeSubscription: UInt?
+    private var durationSubscription: UInt?
     private var streamingBufferSubscription: UInt?
 
     public init() {
-        subscribeToPlayingStatusUpdates()
-        subscribeToBufferPosition()
+        subscribeToAllSubscriptions()
     }
 
     /// To be modified in order to handle multiple tracks at once
@@ -155,8 +162,10 @@ public class JustAudioPlayer {
         unsubscribeUpdates()
     }
 
-    // TODO: Jump to the 10 second position
-    public func seek(second _: TimeInterval, index _: Int?) {}
+    // seek to a determinate value, default is 10 second forward
+    public func seek(second: Double = 10.0) {
+        SAPlayer.shared.seekTo(seconds: second)
+    }
 
     // Skip to the next item
     public func seekToNext() {
@@ -306,6 +315,13 @@ public class JustAudioPlayer {
 
 @available(iOS 15.0, *)
 private extension JustAudioPlayer {
+    func subscribeToAllSubscriptions() {
+        subscribeToPlayingStatusUpdates()
+        subscribeToBufferPosition()
+        subscribeToElapsedTime()
+        subscribeToDuration()
+    }
+
     func subscribeToPlayingStatusUpdates() {
         playingStatusSubscription = SAPlayer.Updates.PlayingStatus
             .subscribe { [weak self] playingStatus in
@@ -364,7 +380,27 @@ private extension JustAudioPlayer {
             }
     }
 
+    func subscribeToElapsedTime() {
+        streamingBufferSubscription = SAPlayer.Updates.ElapsedTime
+            .subscribe { [weak self] elapsedTime in
+                self?.elapsedTime = elapsedTime
+            }
+    }
+
+    func subscribeToDuration() {
+        durationSubscription = SAPlayer.Updates.Duration
+            .subscribe { [weak self] duration in
+                self?.duration = duration
+            }
+    }
+
     func unsubscribeUpdates() {
+        if let subscription = elapsedTimeSubscription {
+            SAPlayer.Updates.ElapsedTime.unsubscribe(subscription)
+        }
+        if let subscription = durationSubscription {
+            SAPlayer.Updates.ElapsedTime.unsubscribe(subscription)
+        }
         if let subscription = playingStatusSubscription {
             SAPlayer.Updates.PlayingStatus.unsubscribe(subscription)
         }

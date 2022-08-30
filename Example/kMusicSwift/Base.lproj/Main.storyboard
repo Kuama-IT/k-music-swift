@@ -81,12 +81,31 @@
                                     <action selector="onPrevious:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="tcE-OP-sj5"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PlayerNode volume" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sd3-UV-ghi">
+                                <rect key="frame" x="8" y="517" width="359" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Seek track" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Alp-35-djE">
+                                <rect key="frame" x="8" y="8" width="359" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="HWc-KG-dx3">
+                                <rect key="frame" x="6" y="37" width="363" height="31"/>
+                                <connections>
+                                    <action selector="onSeekChanged:" destination="vXZ-lx-hvc" eventType="valueChanged" id="pOO-s3-nFX"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="Ob8-Gh-Pzu" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="16" id="2gO-LH-Vfr"/>
                             <constraint firstItem="J4O-bw-woF" firstAttribute="leading" secondItem="eLM-BE-EDl" secondAttribute="trailing" constant="68" id="3Vr-7O-7Ci"/>
                             <constraint firstItem="Ob8-Gh-Pzu" firstAttribute="bottom" secondItem="eLM-BE-EDl" secondAttribute="bottom" id="6MV-U6-MlD"/>
+                            <constraint firstItem="HWc-KG-dx3" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="91p-Za-1g8"/>
                             <constraint firstItem="SyX-K9-cwb" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="CIe-XW-OPW"/>
                             <constraint firstItem="J4O-bw-woF" firstAttribute="bottom" secondItem="eLM-BE-EDl" secondAttribute="bottom" id="E9g-4R-ZOG"/>
                             <constraint firstItem="Tt1-28-RZk" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="EVv-4a-OIu"/>
@@ -95,21 +114,34 @@
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="Iza-na-OS9"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="top" secondItem="Tt1-28-RZk" secondAttribute="bottom" constant="50" id="KaC-HX-LN9"/>
                             <constraint firstItem="mlc-CR-ltn" firstAttribute="top" secondItem="SyX-K9-cwb" secondAttribute="bottom" constant="50" id="Lg8-hh-gjQ"/>
+                            <constraint firstItem="Alp-35-djE" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="NHV-sJ-KBl"/>
                             <constraint firstItem="SyX-K9-cwb" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="bottom" constant="50" id="NOB-4b-OQb"/>
+                            <constraint firstAttribute="trailing" secondItem="Alp-35-djE" secondAttribute="trailing" constant="8" id="Qag-rY-eHR"/>
                             <constraint firstItem="Ob8-Gh-Pzu" firstAttribute="top" secondItem="eLM-BE-EDl" secondAttribute="top" id="SPu-B6-sUS"/>
                             <constraint firstItem="J4O-bw-woF" firstAttribute="width" secondItem="eLM-BE-EDl" secondAttribute="width" id="YId-JT-yTY"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="YWQ-15-OAt"/>
+                            <constraint firstItem="HWc-KG-dx3" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="aRR-m0-lcv"/>
                             <constraint firstItem="J4O-bw-woF" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="akz-pU-q0g"/>
+                            <constraint firstItem="sd3-UV-ghi" firstAttribute="leading" secondItem="mlc-CR-ltn" secondAttribute="leading" id="arp-O7-42A"/>
+                            <constraint firstItem="Alp-35-djE" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="8" id="dme-2b-QwQ"/>
                             <constraint firstItem="mlc-CR-ltn" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="8" id="eJp-lB-CVX"/>
                             <constraint firstAttribute="trailing" secondItem="J4O-bw-woF" secondAttribute="trailing" constant="16" id="hgf-8T-SJ3"/>
+                            <constraint firstItem="sd3-UV-ghi" firstAttribute="trailing" secondItem="mlc-CR-ltn" secondAttribute="trailing" id="vAp-Ht-tcE"/>
+                            <constraint firstItem="HWc-KG-dx3" firstAttribute="top" secondItem="Alp-35-djE" secondAttribute="bottom" constant="8" id="vhg-7v-6EO"/>
                             <constraint firstItem="eLM-BE-EDl" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Ob8-Gh-Pzu" secondAttribute="trailing" constant="8" symbolic="YES" id="x0W-hq-FX2"/>
+                            <constraint firstItem="mlc-CR-ltn" firstAttribute="top" secondItem="sd3-UV-ghi" secondAttribute="bottom" constant="-1.5" id="yIC-le-anF"/>
+                            <constraint firstAttribute="trailing" secondItem="HWc-KG-dx3" secondAttribute="trailing" constant="8" id="ytQ-9K-m4w"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="loopModeBtn" destination="Tt1-28-RZk" id="7qw-qt-NO9"/>
+                        <outlet property="nextBtn" destination="J4O-bw-woF" id="l2B-nS-Cxp"/>
                         <outlet property="playOrPauseBtn" destination="eLM-BE-EDl" id="DRv-1P-hJL"/>
+                        <outlet property="seekLabel" destination="Alp-35-djE" id="xG8-br-Ki8"/>
+                        <outlet property="seekSlider" destination="HWc-KG-dx3" id="qcw-k5-O3l"/>
                         <outlet property="stopBtn" destination="SyX-K9-cwb" id="2E1-qF-TTT"/>
                         <outlet property="view" destination="eLM-BE-EDl" id="C8o-SW-VBb"/>
+                        <outlet property="volumeLabel" destination="sd3-UV-ghi" id="voT-vl-6Hx"/>
                         <outlet property="volumeSlider" destination="mlc-CR-ltn" id="N11-vc-qZM"/>
                     </connections>
                 </viewController>
