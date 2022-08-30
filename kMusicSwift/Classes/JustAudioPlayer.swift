@@ -5,16 +5,16 @@ import Foundation
 import SwiftAudioPlayer
 
 // Icy Metadata (?)
-// Volume ✅
+// Volume ✅✅
 // Composite state (?)
-// Loop modes ✅
-// Request headers ✅
+// Loop modes ✅✅
+// Request headers ✅✅
 // Concatenating ✅
 // Gapless transitions ✅
 // HLS (?)
-// Radio/Livestreams ✅
+// Radio/Livestreams ✅✅
 // Time stretching (1x, 2x) ✅
-// Buffer position (on download from http) ✅
+// Buffer position (on download from http) ✅✅
 // Shuffling ✅
 // Clipping ✅
 // Playlist editing ✅
@@ -42,6 +42,9 @@ public class JustAudioPlayer {
     // player node volume value
     @Published public private(set) var volume: Float?
 
+    // buffer duration
+    @Published public private(set) var bufferPosition: Double?
+
     // forwarded to the SAPlayer http client, in case we load a track from the internet and need to set some headers
     var httpHeaders: [String: String] = [:] {
         didSet {
@@ -64,10 +67,13 @@ public class JustAudioPlayer {
         return nil
     }
 
+    // Notification subscriptions
     private var playingStatusSubscription: UInt?
+    private var streamingBufferSubscription: UInt?
 
     public init() {
         subscribeToPlayingStatusUpdates()
+        subscribeToBufferPosition()
     }
 
     /// To be modified in order to handle multiple tracks at once
@@ -98,17 +104,19 @@ public class JustAudioPlayer {
         unsubscribeUpdates()
     }
 
-    // Jump to the 10 second position
+    // TODO: Jump to the 10 second position
     public func seek(second _: TimeInterval, index _: Int?) {}
 
-    // Skip to the next item
+    // TODO: Skip to the next item
     public func seekToNext() {}
 
-    // Skip to the previous item
+    // TODO: Skip to the previous item
     public func seekToPrevious() {}
 
+    // TODO:
     public func setShuffleModeEnabled() {}
 
+    // TODO:
     public func setSpeed(_: Float) {
         // hint:
         // func scheduleFile(
@@ -147,6 +155,7 @@ public class JustAudioPlayer {
         }
     }
 
+    // TODO:
     public func setClip(start _: TimeInterval? = nil, end _: TimeInterval? = nil) {}
 
     // Streams (event channels)
@@ -249,9 +258,21 @@ private extension JustAudioPlayer {
             }
     }
 
+    func subscribeToBufferPosition() {
+        streamingBufferSubscription = SAPlayer.Updates.StreamingBuffer
+            .subscribe { [weak self] buffer in
+                // TODO: once we hook to the UI verify this is the correct value to proxy
+                self?.bufferPosition = buffer.totalDurationBuffered
+            }
+    }
+
     func unsubscribeUpdates() {
         if let subscription = playingStatusSubscription {
             SAPlayer.Updates.PlayingStatus.unsubscribe(subscription)
+        }
+
+        if let subscription = streamingBufferSubscription {
+            SAPlayer.Updates.StreamingBuffer.unsubscribe(subscription)
         }
     }
 }
