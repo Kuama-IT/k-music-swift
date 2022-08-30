@@ -1,6 +1,13 @@
 name: Test And Lint
 
-on: [ push ]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - synchronize
+      - ready_for_review
 
 jobs:
   build:
