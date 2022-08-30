@@ -25,6 +25,23 @@ import SwiftAudioPlayer
 // Mixer presets
 // Mixed output to file (or stream?)
 
+// Streams (event channels)
+// - playerStateStream
+// - durationStream
+// - positionStream
+// - bufferedPositionStream ✅✅
+// - sequenceStateStream
+// - sequenceStream
+// - currentIndexStream ✅✅
+// - icyMetadataStream
+// - playingStream ✅✅
+// - processingStateStream
+// - loopModeStream ✅✅
+// - shuffleModeEnabledStream
+// - volumeStream ✅✅
+// - speedStream
+// - playbackEventStream
+
 public enum LoopMode {
     case off
     case one
@@ -57,8 +74,8 @@ public class JustAudioPlayer {
         }
     }
 
-    /// Tracks which track is being reproduced
-    private var queueIndex: Int?
+    /// Tracks which track is being reproduced (currentIndexStream)
+    @Published public private(set) var queueIndex: Int?
 
     /// Full list of tracks that will be played
     private var queue: [TrackResource] = []
@@ -178,23 +195,6 @@ public class JustAudioPlayer {
 
     // TODO:
     public func setClip(start _: TimeInterval? = nil, end _: TimeInterval? = nil) {}
-
-    // Streams (event channels)
-    // - playerStateStream
-    // - durationStream
-    // - positionStream
-    // - bufferedPositionStream
-    // - sequenceStateStream
-    // - sequenceStream
-    // - currentIndexStream
-    // - icyMetadataStream
-    // - playingStream
-    // - processingStateStream
-    // - loopModeStream
-    // - shuffleModeEnabledStream
-    // - volumeStream
-    // - speedStream
-    // - playbackEventStream
 
     // MARK: - Queue
 
