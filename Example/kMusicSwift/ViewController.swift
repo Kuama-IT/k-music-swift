@@ -45,10 +45,11 @@ class ViewController: UIViewController {
             .store(in: &cancellables)
 
         jap.addTrack(TrackResource(uri: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3", isRemote: true))
-        jap.addTrack(TrackResource(uri: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", isRemote: true))
-        ["nature.mp3", "AudioSource.mp3"].forEach { track in
+
+        ["nature.mp3"].forEach { track in
             jap.addTrack(TrackResource(uri: track))
         }
+        jap.addTrack(TrackResource(uri: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3", isRemote: true))
     }
 
     @IBAction func onPlayOrPause(sender: UIButton) {
