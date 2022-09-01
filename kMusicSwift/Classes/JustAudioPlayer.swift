@@ -4,44 +4,6 @@ import Darwin
 import Foundation
 import SwiftAudioPlayer
 
-// Icy Metadata (?)
-// Volume ✅✅
-// Composite state (?)
-// Loop modes ✅✅
-// Request headers ✅✅
-// Concatenating ✅
-// Gapless transitions ✅
-// HLS (?)
-// Radio/Livestreams ✅✅
-// Time stretching (1x, 2x) ✅
-// Buffer position (on download from http) ✅✅
-// Shuffling ✅
-// Clipping ✅
-// Playlist editing ✅
-// Audio effects
-// Multiple tracks in one time
-// Audio effects on a per-track basis
-// Mixer
-// Mixer presets
-// Mixed output to file (or stream?)
-
-// Streams (event channels)
-// - playerStateStream
-// - durationStream✅✅
-// - positionStream✅✅
-// - bufferedPositionStream ✅✅
-// - sequenceStateStream
-// - sequenceStream
-// - currentIndexStream ✅✅
-// - icyMetadataStream
-// - playingStream ✅✅
-// - processingStateStream
-// - loopModeStream ✅✅
-// - shuffleModeEnabledStream
-// - volumeStream ✅✅
-// - speedStream
-// - playbackEventStream
-
 public enum LoopMode {
     case off
     case one
