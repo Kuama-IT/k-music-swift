@@ -10,7 +10,7 @@
  An `AudioSource` that holds an audio file stored inside the local filesystem
  It can be built with a string representing a full path to the audio file inside the local filesystem.
  */
-public class LocalAudioSource: SingleAudioSource {
+public class LocalAudioSource: AudioSource {
     public var playingStatus: AudioSourcePlayingStatus = .idle
 
     public private(set) var audioUrl: URL?

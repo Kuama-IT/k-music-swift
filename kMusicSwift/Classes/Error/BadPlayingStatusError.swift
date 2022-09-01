@@ -7,7 +7,7 @@
 //
 
 /*
- * The given playing status for `AudioSource`
+ * The given playing status for `AudioSource` is not valid
  */
 public class BadPlayingStatusError: JustAudioPlayerError {
     public let value: AudioSourcePlayingStatus

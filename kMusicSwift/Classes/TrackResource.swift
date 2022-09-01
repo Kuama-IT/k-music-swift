@@ -8,7 +8,7 @@
 import AVFAudio
 import SwiftAudioPlayer
 
-// TODO: this should become somethin that extends a UriAudioSource
+// TODO: this should become something that extends a UriAudioSource
 // URLs
 // Assets
 // Files

@@ -32,22 +32,22 @@ class JustAudioPlayerTest: XCTestCase {
             XCTAssertEqual((error as! BadPlayingStatusError).value, .buffering)
         }
     }
-    
+
     func testRemoteAudioSource() throws {
         // A `LocalAudioSource` can be built with a string representing a remote url
         let remoteAudio = RemoteAudioSource(at: "https://fake.url")
         assert(remoteAudio.audioUrl == URL(string: "https://fake.url")!)
         assert(remoteAudio.playingStatus == .idle)
     }
-    
-    func testRemoteAudioSourceCanBuffer() {
+
+    func testRemoteAudioSourceCanBuffer() throws {
         let remoteAudio = RemoteAudioSource(at: "https://fake.url")
         XCTAssertNoThrow(try remoteAudio.setPlayingStatus(.buffering))
-        
+
         assert(remoteAudio.playingStatus == .buffering)
     }
-    
-    func testIndexedAudioSourceMustBeBuildWithSingleAudioSource() {
+
+    func testIndexedAudioSourceMustBeBuildWithSingleAudioSource() throws {
         let localAudio = LocalAudioSource(at: "sample.mp3")
         let indexedAudioSource = IndexedAudioSource(with: localAudio)
         assert(indexedAudioSource.playingStatus == localAudio.playingStatus)
@@ -55,11 +55,26 @@ class JustAudioPlayerTest: XCTestCase {
         assert(indexedAudioSource.sequence[0].playingStatus == localAudio.playingStatus)
         assert(indexedAudioSource.sequence.count == 1)
     }
-    
-    func testIndexedAudioSourceShuffleDoesNothing() {
+
+    func testIndexedAudioSourceShuffleDoesNothing() throws {
         let localAudio = LocalAudioSource(at: "sample.mp3")
         let indexedAudioSource = IndexedAudioSource(with: localAudio)
         indexedAudioSource.playbackOrder = [3]
         assert(indexedAudioSource.playbackOrder == [0])
+    }
+
+    func testCannotSetPlayingStatusBeforeSettingCurrentTrack() throws {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+        let indexedAudioSource = IndexedAudioSource(with: localAudio)
+        XCTAssertThrowsError(try indexedAudioSource.setPlayingStatus(.playing)) { error in
+            XCTAssertEqual((error as! InconsistentState).message, "Please set the current index before setting the playing status")
+        }
+
+        indexedAudioSource.currentSequenceIndex = 10
+        assert(indexedAudioSource.currentSequenceIndex == 0)
+
+        try indexedAudioSource.setPlayingStatus(.playing)
+
+        assert(indexedAudioSource.playingStatus == .playing)
     }
 }

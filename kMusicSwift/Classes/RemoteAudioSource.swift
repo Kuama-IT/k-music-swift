@@ -9,11 +9,11 @@
 /**
  An `AudioSource` the holds a single audio stream
  */
-public class RemoteAudioSource: SingleAudioSource {
+public class RemoteAudioSource: AudioSource {
     public var playingStatus: AudioSourcePlayingStatus = .idle
-    
+
     public private(set) var audioUrl: URL?
-    
+
     public init(at uri: String) {
         audioUrl = URL(string: uri)
     }
