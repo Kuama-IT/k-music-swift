@@ -9,11 +9,7 @@
 /**
  An `AudioSource` that loops for N times before being considered "finished"
  */
-public class LoopingAudioSource: AudioSource {
-    public var sequence: [IndexedAudioSource] = []
-
-    public var playbackOrder: [Int] = []
-
+public class LoopingAudioSource: IndexedAudioSource {
     // The number of times this audio source should loop
     let count: Int
 

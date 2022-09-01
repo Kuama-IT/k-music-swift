@@ -10,7 +10,7 @@
  An `AudioSource` that holds a list of `IndexedAudioSource`, may represents a playlist of songs
  */
 public class ConcatenatingAudioSource: AudioSource {
-    public var sequence: [IndexedAudioSource] = []
+    public var sequence: [SingleAudioSource] = []
 
     public var playbackOrder: [Int] = []
 
