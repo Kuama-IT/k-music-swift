@@ -34,6 +34,6 @@ Carthage/Build
 # `pod install` in .travis.yml
 #
 Pods/
-
+!Pods/Pods.xcodeproj/xcshareddata
 # IntelliJ
 .idea
