@@ -13,7 +13,8 @@ public class LoopingAudioSource: IndexedAudioSource {
     // The number of times this audio source should loop
     let count: Int
 
-    init(count: Int) {
+    init(with singleAudioSource:SingleAudioSource, count: Int) {
         self.count = count
+        super.init(with: singleAudioSource)
     }
 }

@@ -7,18 +7,30 @@
 //
 
 /**
- An `AudioSource` that can appear in a sequence. Represents a single audio file
+ An `AudioSource` that can appear in a sequence. Represents a single audio file (naming is inherited from `just_audio` plugin)
  */
 public class IndexedAudioSource: AudioSource, SingleAudioSource {
-    public var playbackOrder: [Int] = []
+    public var playbackOrder: [Int] {
+        set {
+            // no op
+        }
+        
+        get {
+            return [0]
+        }
+    }
 
     public var sequence: [SingleAudioSource] = []
+    
+    public init(with singleAudioSource:SingleAudioSource) {
+        sequence = [singleAudioSource]
+        playbackOrder = [0]
+    }
 
     public var playingStatus: AudioSourcePlayingStatus {
         return sequence[playbackOrder.first!].playingStatus
     }
 
-    /// Enforces the correct flow of the status of a track
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {
         return try sequence[playbackOrder.first!].setPlayingStatus(nextStatus)
     }

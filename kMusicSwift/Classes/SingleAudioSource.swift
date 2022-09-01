@@ -7,7 +7,9 @@
 //
 
 public protocol SingleAudioSource {
+    
     var playingStatus: AudioSourcePlayingStatus { get }
 
+    /// Should enforce the correct flow of the status of a track
     func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws
 }
