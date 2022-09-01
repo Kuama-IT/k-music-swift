@@ -7,11 +7,11 @@
 
 import Foundation
 
-/*
+/**
  * The given value for volume is not valid
  */
 public class VolumeValueNotValid: JustAudioPlayerError {
-    let value: Float
+    public let value: Float
 
     init(value: Float) {
         self.value = value

@@ -12,7 +12,7 @@
  */
 public protocol AudioSource {
     /// The list of audios that this AudioSource contains
-    var sequence: [IndexedAudioSource] { get set }
+    var sequence: [SingleAudioSource] { get set }
 
     /**
      The order in which the `sequence` should be played.

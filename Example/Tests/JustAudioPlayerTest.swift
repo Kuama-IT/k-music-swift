@@ -22,7 +22,14 @@ class JustAudioPlayerTest: XCTestCase {
         // A `LocalAudioSource` can be built with a string representing a path to the local filesystem
         let localAudio = LocalAudioSource(at: "sample.mp3")
         assert(localAudio.audioUrl == Bundle.main.url(forResource: "sample.mp3", withExtension: ""))
-        assert(localAudio.sequence.count == 1)
-        assert(localAudio.playbackOrder == [0])
+        assert(localAudio.playingStatus == .idle)
+    }
+
+    func testLocalAudioSourceCannotBuffer() throws {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+
+        XCTAssertThrowsError(try localAudio.setPlayingStatus(.buffering)) { error in
+            XCTAssertEqual((error as! BadPlayingStatusError).value, .buffering)
+        }
     }
 }
