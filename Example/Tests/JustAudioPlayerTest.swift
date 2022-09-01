@@ -46,4 +46,20 @@ class JustAudioPlayerTest: XCTestCase {
         
         assert(remoteAudio.playingStatus == .buffering)
     }
+    
+    func testIndexedAudioSourceMustBeBuildWithSingleAudioSource() {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+        let indexedAudioSource = IndexedAudioSource(with: localAudio)
+        assert(indexedAudioSource.playingStatus == localAudio.playingStatus)
+        assert(indexedAudioSource.playbackOrder == [0])
+        assert(indexedAudioSource.sequence[0].playingStatus == localAudio.playingStatus)
+        assert(indexedAudioSource.sequence.count == 1)
+    }
+    
+    func testIndexedAudioSourceShuffleDoesNothing() {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+        let indexedAudioSource = IndexedAudioSource(with: localAudio)
+        indexedAudioSource.playbackOrder = [3]
+        assert(indexedAudioSource.playbackOrder == [0])
+    }
 }
