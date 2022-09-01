@@ -9,4 +9,38 @@
 /**
  An `AudioSource` the holds a single audio stream
  */
-public class RemoteAudioSource: IndexedAudioSource {}
+public class RemoteAudioSource: SingleAudioSource {
+    public var playingStatus: AudioSourcePlayingStatus = .idle
+    
+    public private(set) var audioUrl: URL?
+    
+    public init(at uri: String) {
+        audioUrl = URL(string: uri)
+    }
+
+    /// Enforces the correct flow of the status of a track
+    public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {
+        switch playingStatus {
+        case .playing:
+            if nextStatus != .playing, nextStatus != .idle {
+                playingStatus = nextStatus
+            }
+        case .paused:
+            if nextStatus != .paused {
+                playingStatus = nextStatus
+            }
+        case .buffering:
+            if nextStatus != .ended {
+                playingStatus = nextStatus
+            }
+        case .ended:
+            if nextStatus != .idle {
+                playingStatus = nextStatus
+            }
+        case .idle:
+            if nextStatus != .ended, nextStatus != .paused {
+                playingStatus = nextStatus
+            }
+        }
+    }
+}

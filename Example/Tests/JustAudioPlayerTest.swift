@@ -32,4 +32,18 @@ class JustAudioPlayerTest: XCTestCase {
             XCTAssertEqual((error as! BadPlayingStatusError).value, .buffering)
         }
     }
+    
+    func testRemoteAudioSource() throws {
+        // A `LocalAudioSource` can be built with a string representing a remote url
+        let remoteAudio = RemoteAudioSource(at: "https://fake.url")
+        assert(remoteAudio.audioUrl == URL(string: "https://fake.url")!)
+        assert(remoteAudio.playingStatus == .idle)
+    }
+    
+    func testRemoteAudioSourceCanBuffer() {
+        let remoteAudio = RemoteAudioSource(at: "https://fake.url")
+        XCTAssertNoThrow(try remoteAudio.setPlayingStatus(.buffering))
+        
+        assert(remoteAudio.playingStatus == .buffering)
+    }
 }
