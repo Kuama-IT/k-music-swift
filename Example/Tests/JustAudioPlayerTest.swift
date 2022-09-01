@@ -18,5 +18,11 @@ class JustAudioPlayerTest: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {}
+    func testLocalAudioSource() throws {
+        // A `LocalAudioSource` can be built with a string representing a path to the local filesystem
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+        assert(localAudio.audioUrl == Bundle.main.url(forResource: "sample.mp3", withExtension: ""))
+        assert(localAudio.sequence.count == 1)
+        assert(localAudio.playbackOrder == [0])
+    }
 }
