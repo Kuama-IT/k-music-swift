@@ -1,20 +1,22 @@
 //
-//  AudioSource.swift
-//  kMusicSwift
+// AudioSource.swift
+// kMusicSwift
+// Created by Kuama Dev Team on 01/09/22
+// Using Swift 5.0
+// Running on macOS 12.5
 //
-//  Created by Mac on 26/08/22.
-//
-public class AudioSource {}
-// Byte streams
-public class StreamAudioSource: AudioSource {}
-public class DashAudioSource: AudioSource {}
-public class HlsAudioSource: AudioSource {}
-public class ProgressiveAudioSource: AudioSource {}
-// This is the playlist
-public class ConcatenatingAudioSource: AudioSource {
-    func add(_: AudioSource) {}
-    func insert(at _: Int, _: AudioSource) {}
-    func remove(at _: Int) {}
-}
 
-public class ClippingAudioSource: AudioSource {}
+/**
+ Base class to represent an audio file wrapper
+ All audio file wrapper must have at least one audio source, and allow to set a shuffle order
+ */
+public protocol AudioSource {
+    /// The list of audios that this AudioSource contains
+    var sequence: [IndexedAudioSource] { get set }
+
+    /**
+     The order in which the `sequence` should be played.
+     A shuffle action would change this array
+     */
+    var playbackOrder: [Int] { get set }
+}

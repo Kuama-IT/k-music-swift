@@ -1,0 +1,23 @@
+//
+// LoopingAudioSource.swift
+// kMusicSwift
+// Created by Kuama Dev Team on 01/09/22
+// Using Swift 5.0
+// Running on macOS 12.5
+//
+
+/**
+ An `AudioSource` that loops for N times before being considered "finished"
+ */
+public class LoopingAudioSource: AudioSource {
+    public var sequence: [IndexedAudioSource] = []
+
+    public var playbackOrder: [Int] = []
+
+    // The number of times this audio source should loop
+    let count: Int
+
+    init(count: Int) {
+        self.count = count
+    }
+}

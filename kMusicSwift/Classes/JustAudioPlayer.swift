@@ -21,10 +21,13 @@ public enum ProcessingState {
 
 @available(iOS 15.0, *)
 public class JustAudioPlayer {
-    // represent the time that must elapse before choose to restart a song
-    // or seek to the previous one
-    // in second
+    /**
+     Represents the time that must elapse before choose to restart a song or seek to the previous one.
+     Expressed in seconds
+     */
     private static let ELAPSED_TIME_TO_RESTART_A_SONG = 5.0
+
+    // MARK: - Event Streams
 
     // whether we're currently playing a song
     @Published public private(set) var isPlaying: Bool = false
@@ -47,15 +50,22 @@ public class JustAudioPlayer {
     // elapsed time
     @Published public private(set) var elapsedTime: Double?
 
-    // forwarded to the SAPlayer http client, in case we load a track from the internet and need to set some headers
+    // Tracks which track is being reproduced (currentIndexStream)
+    @Published public private(set) var queueIndex: Int?
+
+    // MARK: - Http headers
+
+    /**
+     Allows to set the http headers of the request that the player internally does to retrieve a stream or a single audio.
+     These headers are unique for player, and will be shared for all of the queued `AudioSource`
+     */
     var httpHeaders: [String: String] = [:] {
         didSet {
             SAPlayer.shared.HTTPHeaderFields = httpHeaders
         }
     }
 
-    /// Tracks which track is being reproduced (currentIndexStream)
-    @Published public private(set) var queueIndex: Int?
+    // MARK: - Internal state
 
     /// Full list of tracks that will be played
     private var queue: [TrackResource] = []
@@ -69,15 +79,20 @@ public class JustAudioPlayer {
         return nil
     }
 
-    // Notification subscriptions
+    // MARK: - Notification subscriptions
+
     private var playingStatusSubscription: UInt?
     private var elapsedTimeSubscription: UInt?
     private var durationSubscription: UInt?
     private var streamingBufferSubscription: UInt?
 
+    // MARK: - Constructor
+
     public init() {
         subscribeToAllSubscriptions()
     }
+
+    // MARK: - Public API
 
     /// To be modified in order to handle multiple tracks at once
     public func addTrack(_ track: TrackResource) {
@@ -86,8 +101,10 @@ public class JustAudioPlayer {
 
     public func setAudioSource(_: AudioSource) {}
 
-    /// Starts to play the current queue of the player
-    /// If the player is already playing, calling this method will result in a no-op
+    /**
+     Starts to play the current queue of the player
+     If the player is already playing, calling this method will result in a no-op
+     */
     public func play() {
         guard let node = SAPlayer.shared.playerNode else {
             // first time to play a song
@@ -109,34 +126,40 @@ public class JustAudioPlayer {
         }
     }
 
-    // Pause but remain ready to play
+    /**
+     Pause the player, but keeps it ready to play (`queue` will not be dropped, `queueIndex` will not change)
+     */
     public func pause() {
         processingState = .ready
         SAPlayer.shared.pause()
     }
 
+    /**
+     Stops the player, looses the queue and the current index
+     */
     public func stop() {
         processingState = .none
         SAPlayer.shared.stopStreamingRemoteAudio()
         SAPlayer.shared.playerNode?.stop()
         SAPlayer.shared.engine?.stop()
         queue.removeAll()
+        queueIndex = 0
         unsubscribeUpdates()
     }
 
-    // seek to a determinate value, default is 10 second forward
+    /// seek to a determinate value, default is 10 second forward
     public func seek(second: Double = 10.0) {
         SAPlayer.shared.seekTo(seconds: second)
     }
 
-    // Skip to the next item
+    /// Skip to the next item
     public func seekToNext() {
         if let track = tryMoveToNextTrack(isForced: true) {
             play(track: track)
         }
     }
 
-    // Skip to the previous item
+    /// Skip to the previous item
     public func seekToPrevious() {
         play(track: tryMoveToPreviousTrack())
     }
@@ -156,8 +179,10 @@ public class JustAudioPlayer {
         // AVAudioTime.init(audioTimeStamp: UnsafePointer<AudioTimeStamp>, sampleRate: Double)
     }
 
-    // set the node volume
-    // N.B. it is the player node volume value, not the device's one
+    /**
+     Sets the node volume
+     N.B. it is the player node volume value, not the device's one
+     */
     public func setVolume(_ volume: Float) throws {
         guard volume >= 0.0 || volume <= 1.0 else {
             throw VolumeValueNotValid(value: volume)
@@ -166,12 +191,17 @@ public class JustAudioPlayer {
         SAPlayer.shared.playerNode?.volume = volume
     }
 
-    // Set the loop mode
+    /**
+     Sets the player loop mode.
+     Warning: if one of the `AudioSources` in queue is a `LoopingAudioSource`, its "loop" will override the player loop
+     */
     public func setLoopMode(_ loopMode: LoopMode) {
         self.loopMode = loopMode
     }
 
-    // set the next loop mode
+    /**
+     Sets the next loop mode. Allow the user to keep touching the same button to toggle between the different `LoopMode`s
+     */
     public func setNextLoopMode() {
         switch loopMode {
         case .off:
@@ -186,7 +216,7 @@ public class JustAudioPlayer {
     // TODO:
     public func setClip(start _: TimeInterval? = nil, end _: TimeInterval? = nil) {}
 
-    // MARK: - Queue
+    // MARK: - Private API
 
     /**
      * Tries to move the queue index to the next track.
@@ -229,7 +259,7 @@ public class JustAudioPlayer {
     }
 
     /*
-     * always try to push back the player
+     * Always try to push back the player
      * no edge cases
      */
     func tryMoveToPreviousTrack() -> TrackResource {
@@ -305,7 +335,7 @@ private extension JustAudioPlayer {
                 // TODO: remove when stable
                 print(playingStatus)
 
-                let convertedTrackStatus: TrackResourcePlayingStatus = TrackResourcePlayingStatus.fromSAPlayingStatus(playingStatus)
+                let convertedTrackStatus: AudioSourcePlayingStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
                 self?.currentTrack?.setPlayingStatus(convertedTrackStatus)
 
