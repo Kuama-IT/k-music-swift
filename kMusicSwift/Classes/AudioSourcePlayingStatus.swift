@@ -5,6 +5,7 @@
 // Using Swift 5.0
 // Running on macOS 12.5
 //
+import SwiftAudioPlayer
 
 public enum AudioSourcePlayingStatus {
     case playing
