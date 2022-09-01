@@ -1,5 +1,5 @@
 //
-// InconsistentState.swift
+// InconsistentStateError.swift
 // kMusicSwift
 // Created by Kuama Dev Team on 01/09/22
 // Using Swift 5.0
@@ -9,4 +9,4 @@
 /**
  Basically a WTF
  */
-public class InconsistentState: JustAudioPlayerError {}
+public class InconsistentStateError: JustAudioPlayerError {}

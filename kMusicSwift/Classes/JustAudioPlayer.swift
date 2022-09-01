@@ -67,17 +67,7 @@ public class JustAudioPlayer {
 
     // MARK: - Internal state
 
-    /// Full list of tracks that will be played
-    private var queue: [TrackResource] = []
-
-    /// Track that is currently being processed
-    private var currentTrack: TrackResource? {
-        if let index = queueIndex {
-            return queue[index]
-        }
-
-        return nil
-    }
+    private var queueManager = AudioSequenceQueueManager()
 
     // MARK: - Notification subscriptions
 
@@ -94,21 +84,18 @@ public class JustAudioPlayer {
 
     // MARK: - Public API
 
-    /// To be modified in order to handle multiple tracks at once
-    public func addTrack(_ track: TrackResource) {
-        queue.append(track)
+    public func addAudioSource(_ sequence: AudioSequence) {
+        queueManager.addAll(sources: [sequence])
     }
-
-    public func setAudioSource(_: AudioSequence) {}
 
     /**
      Starts to play the current queue of the player
      If the player is already playing, calling this method will result in a no-op
      */
-    public func play() {
+    public func play() throws {
         guard let node = SAPlayer.shared.playerNode else {
             // first time to play a song
-            if let track = tryMoveToNextTrack() {
+            if let track = try tryMoveToNextTrack() {
                 processingState = .loading
                 play(track: track)
             } else {
@@ -142,7 +129,7 @@ public class JustAudioPlayer {
         SAPlayer.shared.stopStreamingRemoteAudio()
         SAPlayer.shared.playerNode?.stop()
         SAPlayer.shared.engine?.stop()
-        queue.removeAll()
+        queueManager.clear()
         queueIndex = 0
         unsubscribeUpdates()
     }
@@ -153,15 +140,15 @@ public class JustAudioPlayer {
     }
 
     /// Skip to the next item
-    public func seekToNext() {
-        if let track = tryMoveToNextTrack(isForced: true) {
+    public func seekToNext() throws {
+        if let track = try tryMoveToNextTrack(isForced: true) {
             play(track: track)
         }
     }
 
     /// Skip to the previous item
-    public func seekToPrevious() {
-        play(track: tryMoveToPreviousTrack())
+    public func seekToPrevious() throws {
+        play(track: try tryMoveToPreviousTrack())
     }
 
     // TODO:
@@ -185,7 +172,7 @@ public class JustAudioPlayer {
      */
     public func setVolume(_ volume: Float) throws {
         guard volume >= 0.0 || volume <= 1.0 else {
-            throw VolumeValueNotValid(value: volume)
+            throw VolumeValueNotValidError(value: volume)
         }
         self.volume = volume
         SAPlayer.shared.playerNode?.volume = volume
@@ -224,22 +211,22 @@ public class JustAudioPlayer {
      * `LoopMode.one` works only when a track finishes by itself.
      * - Parameter isForced: whether the next song must be played (ex. seek to next)
      */
-    func tryMoveToNextTrack(isForced: Bool = false) -> TrackResource? {
+    func tryMoveToNextTrack(isForced: Bool = false) throws -> AudioSource? {
         let currentIndex = queueIndex ?? 0
 
         if !isForced {
             // do not change the index, and return the current track
             if loopMode == LoopMode.one {
                 queueIndex = currentIndex
-                return queue[currentIndex]
+                return try queueManager.element(at: currentIndex)
             }
         }
         let nextIndex = queueIndex != nil ? currentIndex + 1 : currentIndex
 
         // simply, the next track available
-        if queue.indices.contains(nextIndex) {
+        if queueManager.contains(nextIndex) {
             queueIndex = nextIndex
-            return queue[nextIndex]
+            return try queueManager.element(at: nextIndex)
         }
 
         // stop the player when we're at the end of the queue and is not forced the seek
@@ -251,7 +238,7 @@ public class JustAudioPlayer {
         // we're at the end of the queue, automatically go back to the first element
         if loopMode == .all || isForced {
             queueIndex = 0
-            return queue[0]
+            return queueManager.first
         }
 
         // undetermined case, should never happens
@@ -262,40 +249,44 @@ public class JustAudioPlayer {
      * Always try to push back the player
      * no edge cases
      */
-    func tryMoveToPreviousTrack() -> TrackResource {
-        guard queue.count > 1 else {
+    func tryMoveToPreviousTrack() throws -> AudioSource {
+        guard queueManager.count > 1 else {
             preconditionFailure("no track has been set")
         }
         let currentIndex = queueIndex ?? 0
         // if track is playing for more than 5 second, restart the current track
         if SAPlayer.shared.elapsedTime ?? 0 >= JustAudioPlayer.ELAPSED_TIME_TO_RESTART_A_SONG {
             queueIndex = currentIndex
-            return queue[currentIndex]
+            return try queueManager.element(at: currentIndex)
         }
 
         let previousIndex = currentIndex - 1
 
         if previousIndex == -1 {
             // first song and want to go back to end of the queue
-            queueIndex = queue.count - 1
-            return queue[queueIndex!]
+            queueIndex = queueManager.count - 1
+            return try queueManager.element(at: queueIndex!)
         }
 
-        if queue.indices.contains(previousIndex) {
+        if queueManager.contains(previousIndex) {
             queueIndex = previousIndex
-            return queue[previousIndex]
+            return try queueManager.element(at: previousIndex)
         }
 
         queueIndex = previousIndex
-        return queue[previousIndex]
+        return try queueManager.element(at: previousIndex)
     }
 
-    func play(track trackResource: TrackResource) {
-        if let url = trackResource.audioUrl {
-            if trackResource.isRemote {
-                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
-            } else {
+    func play(track audioSource: AudioSource) {
+        if let url = audioSource.audioUrl {
+            switch audioSource {
+            case is LocalAudioSource:
                 SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+            case is RemoteAudioSource:
+                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+            default:
+                // TODO: should we throw?
+                preconditionFailure("Don't know how to play \(audioSource.self)")
             }
 
             SAPlayer.shared.play()
@@ -318,6 +309,14 @@ private extension JustAudioPlayer {
         playingStatusSubscription = SAPlayer.Updates.PlayingStatus
             .subscribe { [weak self] playingStatus in
 
+                guard let self = self, let queueIndex = self.queueIndex else {
+                    return
+                }
+
+                if self.volume == nil {
+                    self.volume = SAPlayer.shared.playerNode?.volume
+                }
+
                 // Edge case:
                 // When playing a remote song, we often receive this sequence of statuses:
                 //
@@ -334,32 +333,38 @@ private extension JustAudioPlayer {
 
                 // TODO: remove when stable
                 print(playingStatus)
+                do {
+                    let convertedTrackStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
-                let convertedTrackStatus: AudioSourcePlayingStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
+                    let audioSource = try self.queueManager.element(at: queueIndex)
+                    try audioSource.setPlayingStatus(convertedTrackStatus)
 
-                self?.currentTrack?.setPlayingStatus(convertedTrackStatus)
+                    let currentTrackPlayingStatus = audioSource.playingStatus
 
-                let currentTrackPlayingStatus = self?.currentTrack?.playingStatus ?? .idle
+                    print("current: \(currentTrackPlayingStatus)")
 
-                print("current: \(currentTrackPlayingStatus)")
-                if currentTrackPlayingStatus == .buffering {
-                    self?.processingState = .buffering
-                }
-
-                if currentTrackPlayingStatus == .ended {
-                    if let track = self?.tryMoveToNextTrack() {
-                        self?.play(track: track)
+                    if currentTrackPlayingStatus == .buffering {
+                        self.processingState = .buffering
                     }
-                } else {
-                    self?.processingState = .completed
-                }
 
-                // propagate status to subscribers
-                self?.isPlaying = currentTrackPlayingStatus == .playing
+                    if currentTrackPlayingStatus == .ended {
+                        if let track = try self.tryMoveToNextTrack() {
+                            self.play(track: track)
+                        }
+                    } else {
+                        self.processingState = .completed
+                    }
 
-                // As seen on Android
-                if self?.isPlaying == true {
-                    self?.processingState = .ready
+                    // propagate status to subscribers
+                    self.isPlaying = currentTrackPlayingStatus == .playing
+
+                    // As seen on Android
+                    if self.isPlaying == true {
+                        self.processingState = .ready
+                    }
+                } catch {
+                    print("Unexpected error \(error)")
+                    self.processingState = .none
                 }
             }
     }

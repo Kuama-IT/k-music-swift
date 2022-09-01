@@ -73,13 +73,13 @@ class ViewController: UIViewController {
 
             }).store(in: &cancellables)
 
-        jap.addTrack(TrackResource(uri: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3", isRemote: true))
+        let remote = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
 
-        ["nature.mp3"].forEach { track in
-            jap.addTrack(TrackResource(uri: track))
-        }
-        jap.addTrack(TrackResource(uri: "https://ribgame.com/remote.mp3", isRemote: true))
+        let local = LocalAudioSource(at: "nature.mp3")
 
+        let remote2 = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
+
+        jap.addAudioSource(ConcatenatingAudioSequence(with: [remote, local, remote2]))
         do {
             try jap.setVolume(0.1)
         } catch {
@@ -88,21 +88,33 @@ class ViewController: UIViewController {
     }
 
     @IBAction func onPlayOrPause(sender: UIButton) {
-        if jap.isPlaying {
-            jap.pause()
-            sender.setTitle("▶️", for: .normal)
-        } else {
-            jap.play()
-            sender.setTitle("⏸", for: .normal)
+        do {
+            if jap.isPlaying {
+                jap.pause()
+                sender.setTitle("▶️", for: .normal)
+            } else {
+                try jap.play()
+                sender.setTitle("⏸", for: .normal)
+            }
+        } catch {
+            handleError(error: error)
         }
     }
 
     @IBAction func onNext(_: Any) {
-        jap.seekToNext()
+        do {
+            try jap.seekToNext()
+        } catch {
+            handleError(error: error)
+        }
     }
 
     @IBAction func onPrevious(_: Any) {
-        jap.seekToPrevious()
+        do {
+            try jap.seekToPrevious()
+        } catch {
+            handleError(error: error)
+        }
     }
 
     @IBAction func onLoopMode(_: Any) {

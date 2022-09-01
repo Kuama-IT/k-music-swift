@@ -49,7 +49,7 @@ class JustAudioPlayerTest: XCTestCase {
 
     func testIndexedAudioSourceMustBeBuildWithSingleAudioSource() throws {
         let localAudio = LocalAudioSource(at: "sample.mp3")
-        let indexedAudioSource = IndexedAudioSource(with: localAudio)
+        let indexedAudioSource = IndexedAudioSequence(with: localAudio)
         assert(indexedAudioSource.playingStatus == localAudio.playingStatus)
         assert(indexedAudioSource.playbackOrder == [0])
         assert(indexedAudioSource.sequence[0].playingStatus == localAudio.playingStatus)
@@ -58,16 +58,16 @@ class JustAudioPlayerTest: XCTestCase {
 
     func testIndexedAudioSourceShuffleDoesNothing() throws {
         let localAudio = LocalAudioSource(at: "sample.mp3")
-        let indexedAudioSource = IndexedAudioSource(with: localAudio)
+        let indexedAudioSource = IndexedAudioSequence(with: localAudio)
         indexedAudioSource.playbackOrder = [3]
         assert(indexedAudioSource.playbackOrder == [0])
     }
 
     func testCannotSetPlayingStatusBeforeSettingCurrentTrack() throws {
         let localAudio = LocalAudioSource(at: "sample.mp3")
-        let indexedAudioSource = IndexedAudioSource(with: localAudio)
+        let indexedAudioSource = IndexedAudioSequence(with: localAudio)
         XCTAssertThrowsError(try indexedAudioSource.setPlayingStatus(.playing)) { error in
-            XCTAssertEqual((error as! InconsistentState).message, "Please set the current index before setting the playing status")
+            XCTAssertEqual((error as! InconsistentStateError).message, "Please set the current index before setting the playing status")
         }
 
         indexedAudioSource.currentSequenceIndex = 10

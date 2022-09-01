@@ -1,5 +1,5 @@
 //
-// IndexedAudioSource.swift
+// IndexedAudioSequence.swift
 // kMusicSwift
 // Created by Kuama Dev Team on 01/09/22
 // Using Swift 5.0
@@ -7,9 +7,9 @@
 //
 
 /**
- An `AudioSource` that can appear in a sequence. Represents a single audio file (naming is inherited from `just_audio` plugin)
+ An `AudioSequence` that can appear in a sequence. Represents a single audio file (naming is inherited from `just_audio` plugin)
  */
-public class IndexedAudioSource: AudioSequence, AudioSource {
+public class IndexedAudioSequence: AudioSequence {
     private var onlySequenceIndex: Int?
 
     public var currentSequenceIndex: Int? {
@@ -49,7 +49,7 @@ public class IndexedAudioSource: AudioSequence, AudioSource {
 
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {
         guard let sequenceIndex = currentSequenceIndex else {
-            throw InconsistentState(message: "Please set the current index before setting the playing status")
+            throw InconsistentStateError(message: "Please set the current index before setting the playing status")
         }
         return try sequence[sequenceIndex].setPlayingStatus(nextStatus)
     }

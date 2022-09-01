@@ -1,5 +1,5 @@
 //
-// ClippingAudioSource.swift
+// ClippingAudioSequence.swift
 // kMusicSwift
 // Created by Kuama Dev Team on 01/09/22
 // Using Swift 5.0
@@ -7,9 +7,9 @@
 //
 
 /**
- An `AudioSource` that plays just part of itself
+ An `AudioSequence` that plays just part of itself
  */
-public class ClippingAudioSource: IndexedAudioSource {
+public class ClippingAudioSequence: IndexedAudioSequence {
     let start: Int
     let end: Int
 
