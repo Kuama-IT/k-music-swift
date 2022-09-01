@@ -99,7 +99,7 @@ public class JustAudioPlayer {
         queue.append(track)
     }
 
-    public func setAudioSource(_: AudioSource) {}
+    public func setAudioSource(_: AudioSequence) {}
 
     /**
      Starts to play the current queue of the player

@@ -13,7 +13,7 @@ public class ClippingAudioSource: IndexedAudioSource {
     let start: Int
     let end: Int
 
-    init(with singleAudioSource:SingleAudioSource, from: Int, to: Int) {
+    init(with singleAudioSource: AudioSource, from: Int, to: Int) {
         start = from
         end = to
         super.init(with: singleAudioSource)
