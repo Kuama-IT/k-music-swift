@@ -13,10 +13,14 @@
 public class LocalAudioSource: AudioSource {
     public var playingStatus: AudioSourcePlayingStatus = .idle
 
-    public private(set) var audioUrl: URL?
+    public var audioUrl: URL? {
+        return _audioUrl
+    }
+
+    private var _audioUrl: URL?
 
     public init(at uri: String) {
-        audioUrl = Bundle.main.url(forResource: uri, withExtension: "")
+        _audioUrl = Bundle.main.url(forResource: uri, withExtension: "")
     }
 
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {

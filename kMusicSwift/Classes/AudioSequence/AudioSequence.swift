@@ -1,11 +1,10 @@
 //
-// AudioSource.swift
+// AudioSequence.swift
 // kMusicSwift
 // Created by Kuama Dev Team on 01/09/22
 // Using Swift 5.0
 // Running on macOS 12.5
 //
-
 /**
  Base class to represent an audio file wrapper
  All audio file wrapper must have at least one audio source, and allow to set a shuffle order

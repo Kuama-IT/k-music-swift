@@ -1,9 +1,10 @@
+# Main Features
 - [ ] Icy Metadata (?)
 - [x] Volume
 - [ ] Composite state (?)
 - [x] Loop modes
 - [x] Request headers
-- [ ] Concatenating 
+- [x] Concatenating 
 - [ ] Gapless transitions
 - [ ] HLS (?)
 - [x] Radio/Livestreams
@@ -11,7 +12,7 @@
 - [x] Buffer position (on download from http)
 - [ ] Shuffling
 - [ ] Clipping
-- [ ] Playlist editing
+- [x] Playlist editing
 
 # Audio effects
 - [ ] Multiple tracks in one time
@@ -30,7 +31,7 @@
 - [x] currentIndexStream
 - [ ] icyMetadataStream
 - [x] playingStream
-- [ ]processingStateStream
+- [ ] processingStateStream
 - [x] loopModeStream
 - [ ] shuffleModeEnabledStream
 - [x] volumeStream
