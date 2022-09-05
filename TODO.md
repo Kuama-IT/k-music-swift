@@ -10,7 +10,7 @@
 - [x] Radio/Livestreams
 - [ ] Time stretching (1x, 2x)
 - [x] Buffer position (on download from http)
-- [ ] Shuffling
+- [x] Shuffling
 - [ ] Clipping
 - [x] Playlist editing
 
@@ -33,7 +33,7 @@
 - [x] playingStream
 - [ ] processingStateStream
 - [x] loopModeStream
-- [ ] shuffleModeEnabledStream
+- [x] shuffleModeEnabledStream
 - [x] volumeStream
 - [ ] speedStream
 - [ ] playbackEventStream

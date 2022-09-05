@@ -53,6 +53,11 @@ public class JustAudioPlayer {
     // Tracks which track is being reproduced (currentIndexStream)
     @Published public private(set) var queueIndex: Int?
 
+    // Whether the tracks in the queue are played in shuffled order
+    public var isShuffling: Published<Bool>.Publisher {
+        queueManager.$shouldShuffle
+    }
+
     // MARK: - Http headers
 
     /**
@@ -87,13 +92,9 @@ public class JustAudioPlayer {
     public func addAudioSource(_ sequence: AudioSequence) {
         queueManager.addAll(sources: [sequence])
     }
-    
+
     public func removeAudioSource(at index: Int) throws {
         try queueManager.remove(at: index)
-    }
-    
-    public func shuffle(at index:Int, inOrder newOrder: [Int]) throws {
-        try queueManager.shuffle(at: index, inOrder: newOrder)
     }
 
     /**
@@ -159,8 +160,15 @@ public class JustAudioPlayer {
         play(track: try tryMoveToPreviousTrack())
     }
 
-    // TODO:
-    public func setShuffleModeEnabled() {}
+    /// Toggles shuffle mode
+    public func setShuffleModeEnabled(_ shouldShuffle: Bool) {
+        queueManager.shouldShuffle = shouldShuffle
+    }
+
+    /// Sets a shuffle playback order for a specific `AudioSequence` in the queue
+    public func shuffle(at index: Int, inOrder newOrder: [Int]) throws {
+        try queueManager.shuffle(at: index, inOrder: newOrder)
+    }
 
     // TODO:
     public func setSpeed(_: Float) {

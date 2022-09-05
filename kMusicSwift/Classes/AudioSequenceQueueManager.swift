@@ -12,6 +12,11 @@
 public class AudioSequenceQueueManager {
     private var queue: [AudioSequence] = []
 
+    /**
+     Whether the `AudioSequence.playbackOrder` should be considered when accessing to `AudioSource`s
+     */
+    @Published public var shouldShuffle = false
+
     public var count: Int {
         return queue.reduce(0) { partialResult, sequence in
             partialResult + sequence.sequence.count
@@ -21,9 +26,14 @@ public class AudioSequenceQueueManager {
     public var first: AudioSource? {
         // TODO: this should take in account the shuffle order
         if queue.count > 0 {
+            if !shouldShuffle {
+                return queue[0].sequence.first
+            }
+
             guard let audioSourceIndex = queue[0].playbackOrder.first else {
                 return nil
             }
+
             return queue[0].sequence[audioSourceIndex]
         }
 
@@ -43,8 +53,15 @@ public class AudioSequenceQueueManager {
             }
 
             let audioSequence = queue[audioSequenceIndex]
-            if audioSequence.playbackOrder.indices.contains(mutableIndex) {
-                let audioSourceIndex = audioSequence.playbackOrder[mutableIndex]
+
+            let audioSourceIndexExists: Bool = shouldShuffle
+                ? audioSequence.playbackOrder.contains(mutableIndex)
+                : audioSequence.sequence.indices.contains(mutableIndex)
+
+            if audioSourceIndexExists {
+                let audioSourceIndex = shouldShuffle
+                    ? audioSequence.playbackOrder[mutableIndex]
+                    : mutableIndex
                 audioSource = audioSequence.sequence[audioSourceIndex]
                 found = true
             } else {
@@ -86,35 +103,43 @@ public class AudioSequenceQueueManager {
                 throw QueueIndexOutOfBoundError(index: index, count: count)
             }
 
-            var audioSequence = queue[audioSequenceIndex]
-            if audioSequence.playbackOrder.indices.contains(mutableIndex) {
-                let audioSourceIndex = audioSequence.playbackOrder[mutableIndex]
-                let audioSource = audioSequence.sequence[audioSourceIndex]
+            var audioSequenceToUpdate = queue[audioSequenceIndex]
+
+            let audioSourceIndexExists: Bool = shouldShuffle
+                ? audioSequenceToUpdate.playbackOrder.contains(mutableIndex)
+                : audioSequenceToUpdate.sequence.indices.contains(mutableIndex)
+
+            if audioSourceIndexExists {
+                let audioSourceIndex = shouldShuffle
+                    ? audioSequenceToUpdate.playbackOrder[mutableIndex]
+                    : mutableIndex
+
+                let audioSource = audioSequenceToUpdate.sequence[audioSourceIndex]
 
                 if audioSource.playingStatus == .playing || audioSource.playingStatus == .buffering {
                     throw CannotRemoveAudioSourceFromSequenceError(currentStatus: audioSource.playingStatus)
                 }
 
-                audioSequence.sequence.remove(at: mutableIndex)
+                audioSequenceToUpdate.sequence.remove(at: mutableIndex)
                 removed = true
             } else {
                 audioSequenceIndex += 1
-                mutableIndex -= audioSequence.sequence.count
+                mutableIndex -= audioSequenceToUpdate.sequence.count
             }
         }
     }
-    
-    public func shuffle(at index:Int, inOrder newOrder: [Int]) throws {
+
+    public func shuffle(at index: Int, inOrder newOrder: [Int]) throws {
         if !queue.indices.contains(index) {
             throw QueueIndexOutOfBoundError(index: index, count: count)
         }
-        
-        var sequence = queue[index]
-        
-        if(sequence.sequence.count != newOrder.count) {
-            throw InvalidShuffleSetError(targetedQueueCount: sequence.sequence.count)
+
+        var sequenceToUpdate = queue[index]
+
+        if sequenceToUpdate.sequence.count != newOrder.count {
+            throw InvalidShuffleSetError(targetedQueueCount: sequenceToUpdate.sequence.count)
         }
-        
-        sequence.playbackOrder = newOrder
+
+        sequenceToUpdate.playbackOrder = newOrder
     }
 }
