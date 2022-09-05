@@ -80,7 +80,7 @@ class AudioSequenceQueueManagerTest: XCTestCase {
         queueManager.addAll(sources: [
             IndexedAudioSequence(with: localAudio),
             ConcatenatingAudioSequence(with: [localAudio, remoteAudio]),
-            LoopingAudioSequence(with: localAudio, count: 3),
+            IndexedAudioSequence(with: LoopingAudioSource(with: localAudio, count: 3)),
         ])
 
         let element = try queueManager.element(at: 2)
