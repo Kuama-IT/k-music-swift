@@ -87,17 +87,18 @@ class AudioSequenceQueueManagerTest: XCTestCase {
 
         assert(element.audioUrl == remoteAudio.audioUrl)
     }
-    
+
     func testItAllowsToShuffleItsSequences() throws {
         let queueManager = AudioSequenceQueueManager()
-        let localSources = (0...4).map { RemoteAudioSource(at: "sample-\($0).mp3")}
-        
+        let localSources = (0 ... 4).map { RemoteAudioSource(at: "sample-\($0).mp3") }
+
+        queueManager.shouldShuffle = true
+
         queueManager.addAll(sources: [ConcatenatingAudioSequence(with: localSources)])
         try queueManager.shuffle(at: 0, inOrder: [4, 3, 2, 1, 0])
-        
+
         let source = try queueManager.element(at: 0)
-        
+
         assert(source.audioUrl == localSources[4].audioUrl)
-        
     }
 }

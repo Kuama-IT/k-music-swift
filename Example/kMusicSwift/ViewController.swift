@@ -73,6 +73,11 @@ class ViewController: UIViewController {
 
             }).store(in: &cancellables)
 
+        jap.isShuffling
+            .compactMap { $0 }.receive(on: DispatchQueue.main)
+            .sink { print("\($0)") }
+            .store(in: &cancellables)
+
         let remote = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
 
         let local = LocalAudioSource(at: "nature.mp3")
@@ -88,6 +93,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func onPlayOrPause(sender: UIButton) {
+        jap.setShuffleModeEnabled(true)
         do {
             if jap.isPlaying {
                 jap.pause()

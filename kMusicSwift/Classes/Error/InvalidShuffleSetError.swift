@@ -4,7 +4,7 @@
 // Created by Kuama Dev Team on 05/09/22
 // Using Swift 5.0
 // Running on macOS 12.5
-// 
+//
 
 /**
  * Thrown when trying to shuffle a queue with an invalid shuffle array
@@ -21,4 +21,3 @@ public class InvalidShuffleSetError: JustAudioPlayerError {
         "The shuffle array provided has incorrect count. The targeted queue has \(targetedQueueCount) elements"
     }
 }
-
