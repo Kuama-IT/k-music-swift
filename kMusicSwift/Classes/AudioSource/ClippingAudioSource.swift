@@ -12,8 +12,8 @@
 public class ClippingAudioSource: AudioSource {
     public private(set) var realAudioSource: AudioSource
 
-    let start: Int
-    let end: Int
+    let start: Double
+    let end: Double
 
     public var playingStatus: AudioSourcePlayingStatus {
         realAudioSource.playingStatus
@@ -23,9 +23,13 @@ public class ClippingAudioSource: AudioSource {
         realAudioSource.audioUrl
     }
 
-    public init(with singleAudioSource: AudioSource, from: Int, to: Int) {
+    public init(with singleAudioSource: AudioSource, from: Double, to: Double) throws {
         start = from
         end = to
+
+        guard start < end else {
+            throw ClippingAudioStartEndError()
+        }
         realAudioSource = singleAudioSource
     }
 

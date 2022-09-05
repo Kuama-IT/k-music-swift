@@ -266,7 +266,7 @@ public class JustAudioPlayer {
      * no edge cases
      */
     func tryMoveToPreviousTrack() throws -> AudioSource {
-        guard queueManager.count > 1 else {
+        guard queueManager.count > 0 else {
             preconditionFailure("no track has been set")
         }
         let currentIndex = queueIndex ?? 0
@@ -294,32 +294,28 @@ public class JustAudioPlayer {
     }
 
     func play(track audioSource: AudioSource) {
-        
-        var realAudioSource = audioSource
-        
-        if let clippingAudioSource = audioSource as? ClippingAudioSource {
-            realAudioSource = clippingAudioSource.realAudioSource
-        }
-        
         if let url = audioSource.audioUrl {
-            switch realAudioSource {
+            switch audioSource {
             case is LocalAudioSource:
                 SAPlayer.shared.startSavedAudio(withSavedUrl: url)
             case is RemoteAudioSource:
                 SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+            case let audioSource as ClippingAudioSource:
+                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                seek(second: audioSource.start)
             default:
                 // TODO: should we throw?
                 preconditionFailure("Don't know how to play \(audioSource.self)")
             }
-
-            
-
-            if let audioSource = audioSource as? ClippingAudioSource {
-                processingState = .loading
-                SAPlayer.shared.seekTo(seconds: Double(audioSource.start))
+            let subId = SAPlayer.Updates.StreamingBuffer.subscribe {
+                if $0.isReadyForPlaying {
+                    SAPlayer.shared.play()
+                }
             }
-            
-            SAPlayer.shared.play()
+            if isPlaying {
+                // TODO: find a way to unsubscribe while playing inside the subscribe
+                SAPlayer.Updates.StreamingBuffer.unsubscribe(subId)
+            }
         }
     }
 }
@@ -363,7 +359,7 @@ private extension JustAudioPlayer {
 
                 // TODO: remove when stable
                 print(playingStatus)
-                
+
                 do {
                     let convertedTrackStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
@@ -373,7 +369,7 @@ private extension JustAudioPlayer {
 //                        SAPlayer.shared.play()
 //                        return
 //                    }
-                    
+
                     try audioSource.setPlayingStatus(convertedTrackStatus)
 
                     let currentTrackPlayingStatus = audioSource.playingStatus
@@ -400,8 +396,8 @@ private extension JustAudioPlayer {
                         self.processingState = .ready
                     }
                 } catch {
-                    print("Unexpected error \(error)")
                     self.processingState = .none
+                    preconditionFailure("Unexpected error \(error)")
                 }
             }
     }
@@ -424,18 +420,18 @@ private extension JustAudioPlayer {
                     }
 
                     if let audioSource = try self?.queueManager.element(at: currentIndex) as? ClippingAudioSource {
-                        if elapsedTime >= Double(audioSource.end) {
+                        if elapsedTime >= audioSource.end {
                             try audioSource.setPlayingStatus(.ended)
                             if let track = try self?.tryMoveToNextTrack() {
                                 self?.play(track: track)
                             } else {
                                 self?.processingState = .completed
-                                self?.stop()
+                                self?.pause()
                             }
                         }
                     }
                 } catch {
-                    print("Unexpected error \(error)")
+                    preconditionFailure("Unexpected error \(error)")
                 }
             }
     }

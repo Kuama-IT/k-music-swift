@@ -78,29 +78,39 @@ class ViewController: UIViewController {
             .sink { print("\($0)") }
             .store(in: &cancellables)
 
+        jap.$isPlaying
+            .compactMap { $0 }
+            .map { $0 ? "⏸" : "▶️" }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: {
+                self.playOrPauseBtn.setTitle($0, for: .normal)
+            })
+            .store(in: &cancellables)
+
         let remote = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
-        
+
         let local = LocalAudioSource(at: "nature.mp3")
 
         let remote2 = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
-        let clipped = ClippingAudioSource(with: remote2, from: 30, to: 60)
 
-        jap.addAudioSource(ConcatenatingAudioSequence(with: [remote, local, clipped]))
         do {
+            let clipping = try ClippingAudioSource(with: remote2, from: 50.0, to: 60.0)
+
+            jap.addAudioSource(ConcatenatingAudioSequence(with: [clipping, remote, local]))
             try jap.setVolume(0.1)
+            jap.setLoopMode(.all)
+            try jap.play()
         } catch {
             handleError(error: error)
         }
     }
 
-    @IBAction func onPlayOrPause(sender: UIButton) {
+    @IBAction func onPlayOrPause(sender _: UIButton) {
         do {
             if jap.isPlaying {
                 jap.pause()
-                sender.setTitle("▶️", for: .normal)
             } else {
                 try jap.play()
-                sender.setTitle("⏸", for: .normal)
             }
         } catch {
             handleError(error: error)
@@ -129,7 +139,6 @@ class ViewController: UIViewController {
 
     @IBAction func onStop(_: Any) {
         jap.stop()
-        playOrPauseBtn.setTitle("▶️", for: .normal)
         // TODO: reset the jap's queue tracks after stop, otherwise it will not work
     }
 
