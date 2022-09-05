@@ -87,6 +87,14 @@ public class JustAudioPlayer {
     public func addAudioSource(_ sequence: AudioSequence) {
         queueManager.addAll(sources: [sequence])
     }
+    
+    public func removeAudioSource(at index: Int) throws {
+        try queueManager.remove(at: index)
+    }
+    
+    public func shuffle(at index:Int, inOrder newOrder: [Int]) throws {
+        try queueManager.shuffle(at: index, inOrder: newOrder)
+    }
 
     /**
      Starts to play the current queue of the player

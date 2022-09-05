@@ -21,7 +21,10 @@ public class AudioSequenceQueueManager {
     public var first: AudioSource? {
         // TODO: this should take in account the shuffle order
         if queue.count > 0 {
-            return queue[0].sequence.first
+            guard let audioSourceIndex = queue[0].playbackOrder.first else {
+                return nil
+            }
+            return queue[0].sequence[audioSourceIndex]
         }
 
         return nil
@@ -29,7 +32,6 @@ public class AudioSequenceQueueManager {
 
     public init() {}
 
-    // TODO: this should take in account the shuffle order
     public func element(at index: Int) throws -> AudioSource {
         var mutableIndex = index
         var audioSequenceIndex = 0
@@ -41,8 +43,9 @@ public class AudioSequenceQueueManager {
             }
 
             let audioSequence = queue[audioSequenceIndex]
-            if audioSequence.sequence.indices.contains(mutableIndex) {
-                audioSource = audioSequence.sequence[mutableIndex]
+            if audioSequence.playbackOrder.indices.contains(mutableIndex) {
+                let audioSourceIndex = audioSequence.playbackOrder[mutableIndex]
+                audioSource = audioSequence.sequence[audioSourceIndex]
                 found = true
             } else {
                 audioSequenceIndex += 1
@@ -84,8 +87,9 @@ public class AudioSequenceQueueManager {
             }
 
             var audioSequence = queue[audioSequenceIndex]
-            if audioSequence.sequence.indices.contains(mutableIndex) {
-                let audioSource = audioSequence.sequence[mutableIndex]
+            if audioSequence.playbackOrder.indices.contains(mutableIndex) {
+                let audioSourceIndex = audioSequence.playbackOrder[mutableIndex]
+                let audioSource = audioSequence.sequence[audioSourceIndex]
 
                 if audioSource.playingStatus == .playing || audioSource.playingStatus == .buffering {
                     throw CannotRemoveAudioSourceFromSequenceError(currentStatus: audioSource.playingStatus)
@@ -98,5 +102,19 @@ public class AudioSequenceQueueManager {
                 mutableIndex -= audioSequence.sequence.count
             }
         }
+    }
+    
+    public func shuffle(at index:Int, inOrder newOrder: [Int]) throws {
+        if !queue.indices.contains(index) {
+            throw QueueIndexOutOfBoundError(index: index, count: count)
+        }
+        
+        var sequence = queue[index]
+        
+        if(sequence.sequence.count != newOrder.count) {
+            throw InvalidShuffleSetError(targetedQueueCount: sequence.sequence.count)
+        }
+        
+        sequence.playbackOrder = newOrder
     }
 }

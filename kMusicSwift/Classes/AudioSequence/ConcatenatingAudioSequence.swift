@@ -21,5 +21,6 @@ public class ConcatenatingAudioSequence: AudioSequence {
 
     public init(with audioSources: [AudioSource]) {
         sequence = audioSources
+        playbackOrder = audioSources.indices.map { $0 }
     }
 }
