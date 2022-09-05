@@ -79,12 +79,13 @@ class ViewController: UIViewController {
             .store(in: &cancellables)
 
         let remote = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
-
+        
         let local = LocalAudioSource(at: "nature.mp3")
 
         let remote2 = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
+        let clipped = ClippingAudioSource(with: remote2, from: 30, to: 60)
 
-        jap.addAudioSource(ConcatenatingAudioSequence(with: [remote, local, remote2]))
+        jap.addAudioSource(ConcatenatingAudioSequence(with: [remote, local, clipped]))
         do {
             try jap.setVolume(0.1)
         } catch {
@@ -93,7 +94,6 @@ class ViewController: UIViewController {
     }
 
     @IBAction func onPlayOrPause(sender: UIButton) {
-        jap.setShuffleModeEnabled(true)
         do {
             if jap.isPlaying {
                 jap.pause()
