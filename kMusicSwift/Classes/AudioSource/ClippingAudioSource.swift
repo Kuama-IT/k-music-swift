@@ -10,7 +10,7 @@
  An `AudioSource` that plays just part of itself
  */
 public class ClippingAudioSource: AudioSource {
-    private var realAudioSource: AudioSource
+    public private(set) var realAudioSource: AudioSource
 
     let start: Int
     let end: Int
@@ -23,7 +23,7 @@ public class ClippingAudioSource: AudioSource {
         realAudioSource.audioUrl
     }
 
-    init(with singleAudioSource: AudioSource, from: Int, to: Int) {
+    public init(with singleAudioSource: AudioSource, from: Int, to: Int) {
         start = from
         end = to
         realAudioSource = singleAudioSource

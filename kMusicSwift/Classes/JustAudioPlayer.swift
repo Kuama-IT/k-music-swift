@@ -294,8 +294,15 @@ public class JustAudioPlayer {
     }
 
     func play(track audioSource: AudioSource) {
+        
+        var realAudioSource = audioSource
+        
+        if let clippingAudioSource = audioSource as? ClippingAudioSource {
+            realAudioSource = clippingAudioSource.realAudioSource
+        }
+        
         if let url = audioSource.audioUrl {
-            switch audioSource {
+            switch realAudioSource {
             case is LocalAudioSource:
                 SAPlayer.shared.startSavedAudio(withSavedUrl: url)
             case is RemoteAudioSource:
@@ -305,6 +312,13 @@ public class JustAudioPlayer {
                 preconditionFailure("Don't know how to play \(audioSource.self)")
             }
 
+            
+
+            if let audioSource = audioSource as? ClippingAudioSource {
+                processingState = .loading
+                SAPlayer.shared.seekTo(seconds: Double(audioSource.start))
+            }
+            
             SAPlayer.shared.play()
         }
     }
@@ -349,10 +363,17 @@ private extension JustAudioPlayer {
 
                 // TODO: remove when stable
                 print(playingStatus)
+                
                 do {
                     let convertedTrackStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
                     let audioSource = try self.queueManager.element(at: queueIndex)
+//                    if(convertedTrackStatus == .paused && self.processingState == .loading && audioSource.playingStatus == .buffering) {
+//                        // SAPlayer sometimes, on remote songs, after we force a skip, puts itself into pause. We do not want this behaviour
+//                        SAPlayer.shared.play()
+//                        return
+//                    }
+                    
                     try audioSource.setPlayingStatus(convertedTrackStatus)
 
                     let currentTrackPlayingStatus = audioSource.playingStatus
@@ -395,8 +416,27 @@ private extension JustAudioPlayer {
 
     func subscribeToElapsedTime() {
         streamingBufferSubscription = SAPlayer.Updates.ElapsedTime
-            .subscribe { [weak self] elapsedTime in
+            .subscribe { [weak self] elapsedTime in // let's assume this is expressed in seconds
                 self?.elapsedTime = elapsedTime
+                do {
+                    guard let currentIndex = self?.queueIndex else {
+                        return
+                    }
+
+                    if let audioSource = try self?.queueManager.element(at: currentIndex) as? ClippingAudioSource {
+                        if elapsedTime >= Double(audioSource.end) {
+                            try audioSource.setPlayingStatus(.ended)
+                            if let track = try self?.tryMoveToNextTrack() {
+                                self?.play(track: track)
+                            } else {
+                                self?.processingState = .completed
+                                self?.stop()
+                            }
+                        }
+                    }
+                } catch {
+                    print("Unexpected error \(error)")
+                }
             }
     }
 
