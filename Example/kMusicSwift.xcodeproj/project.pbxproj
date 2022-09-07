@@ -18,6 +18,7 @@
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		68C410084C2756A248A99F27 /* Pods_kMusicSwift_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F6BB2DAAB090B340E285C77 /* Pods_kMusicSwift_Tests.framework */; };
 		8E0D205B28BE5BE700F61FD6 /* RoundingHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0D205A28BE5BE700F61FD6 /* RoundingHelper.swift */; };
+		8E93654228C89D08002C3B80 /* random.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 8E93654128C89D08002C3B80 /* random.mp3 */; };
 		DBAAC8E3F8FF3B2AB3943A3F /* Pods_kMusicSwift_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 928266F18BB1B0F997C63818 /* Pods_kMusicSwift_Example.framework */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +50,7 @@
 		6B3424974F17D2F574222AAF /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		6E3F1BFEDDDC9C2BCD0BCA9E /* Pods-kMusicSwift_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kMusicSwift_Example.debug.xcconfig"; path = "Target Support Files/Pods-kMusicSwift_Example/Pods-kMusicSwift_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		8E0D205A28BE5BE700F61FD6 /* RoundingHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundingHelper.swift; sourceTree = "<group>"; };
+		8E93654128C89D08002C3B80 /* random.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = random.mp3; sourceTree = "<group>"; };
 		928266F18BB1B0F997C63818 /* Pods_kMusicSwift_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_kMusicSwift_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		94DD4CCDCDF86874A7626EBD /* kMusicSwift.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = kMusicSwift.podspec; path = ../kMusicSwift.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		C208D9896C7817F3F8ECFAAE /* Pods-kMusicSwift_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kMusicSwift_Tests.debug.xcconfig"; path = "Target Support Files/Pods-kMusicSwift_Tests/Pods-kMusicSwift_Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 			children = (
 				048538C228BE2ECC003454FD /* nature.mp3 */,
 				04DFEF3028BCA35A00DCE3DA /* AudioSource.mp3 */,
+				8E93654128C89D08002C3B80 /* random.mp3 */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
 				8E0D205A28BE5BE700F61FD6 /* RoundingHelper.swift */,
@@ -265,6 +268,7 @@
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				04DFEF3128BCA35A00DCE3DA /* AudioSource.mp3 in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
+				8E93654228C89D08002C3B80 /* random.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

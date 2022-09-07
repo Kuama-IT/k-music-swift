@@ -32,6 +32,7 @@ class ViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] duration in
                 guard let self = self else { return }
+                self.seekSlider.minimumValue = 0.0
                 self.seekSlider.maximumValue = Float(duration)
             }).store(in: &cancellables)
 
@@ -96,16 +97,17 @@ class ViewController: UIViewController {
 
         let remote = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
 
-        let local = LocalAudioSource(at: "nature.mp3")
+        let local = LocalAudioSource(at: "random.mp3")
+        let local2 = LocalAudioSource(at: "nature.mp3")
 
         let remote2 = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
 
         do {
-            let clipping = try ClippingAudioSource(with: local, from: 1.0, to: 2.0)
+            let clipping = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
 
-            jap.addAudioSource(ConcatenatingAudioSequence(with: [clipping, local]))
+            jap.addAudioSource(ConcatenatingAudioSequence(with: [clipping]))
             try jap.setVolume(0.1)
-//            jap.setLoopMode(.all)
+            jap.setLoopMode(.all)
             try jap.play()
         } catch {
             handleError(error: error)

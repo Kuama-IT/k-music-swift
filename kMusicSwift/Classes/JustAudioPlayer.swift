@@ -296,22 +296,22 @@ public class JustAudioPlayer {
     func play(track audioSource: AudioSource) {
         if let url = audioSource.audioUrl {
             switch audioSource {
-            case is LocalAudioSource:
-                SAPlayer.shared.startSavedAudio(withSavedUrl: url)
-            case is RemoteAudioSource:
-                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
             case let audioSource as ClippingAudioSource:
                 if audioSource.isLocal {
                     SAPlayer.shared.startSavedAudio(withSavedUrl: url)
                 } else {
                     SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
                 }
+            case is LocalAudioSource:
+                SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+            case is RemoteAudioSource:
+                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
 
-                seek(second: audioSource.start)
             default:
                 // TODO: should we throw?
                 preconditionFailure("Don't know how to play \(audioSource.self)")
             }
+            seek(second: audioSource.startingTime)
 
             let actWhenAudioSourceIsReady = {
                 self.subscribeToAllSubscriptions()
@@ -320,7 +320,7 @@ public class JustAudioPlayer {
             }
 
             // start to play when we have loaded at least a `audioSource.startingTime` amount of reproducible audio.
-            // When seeking a remote audio before playiing it, we receive a set of playingStatus updates that we doo not care for:
+            // When seeking a remote audio before playing it, we receive a set of playingStatus updates that we doo not care for:
             unsubscribeUpdates()
 
             // buffer updates are not triggered for local audio sources (not seeked)
@@ -461,25 +461,39 @@ private extension JustAudioPlayer {
     func subscribeToElapsedTime() {
         streamingBufferSubscription = SAPlayer.Updates.ElapsedTime
             .subscribe { [weak self] elapsedTime in // let's assume this is expressed in seconds
-                // TODO: this should take in account whether we are reproducing a ClippingAudioSource and adjust the elapsed
-                // Eg., if we're clipping starting from 30, when elapsedTime is 30 we should notify a 0, and so on
-                self?.elapsedTime = elapsedTime
 
+                guard let self = self else { return }
+
+                guard let currentIndex = self.queueIndex else {
+                    self.elapsedTime = elapsedTime
+                    return
+                }
                 do {
-                    guard let currentIndex = self?.queueIndex else {
-                        return
-                    }
+                    let audioSource = try self.queueManager.element(at: currentIndex) as AudioSource
+                    if let clipped = audioSource as? ClippingAudioSource {
+                        self.elapsedTime = elapsedTime - clipped.start
 
-                    if let audioSource = try self?.queueManager.element(at: currentIndex) as? ClippingAudioSource {
-                        if elapsedTime >= audioSource.end {
-                            try audioSource.setPlayingStatus(.ended)
-                            if let track = try self?.tryMoveToNextTrack() {
-                                self?.play(track: track)
+                        if clipped.playingStatus == .ended {
+                            // avoid double call to play
+                            return
+                        }
+                        if elapsedTime >= clipped.end { // here go next or pause?
+                            try clipped.setPlayingStatus(.ended)
+                            if let track = try self.tryMoveToNextTrack() {
+                                self.play(track: track)
                             } else {
-                                self?.processingState = .completed
-                                self?.pause()
+                                self.processingState = .completed
+                                self.pause()
                             }
                         }
+                    } else {
+                        if audioSource.playingStatus == .ended {
+                            // when one track is finished, it could be that the next one starts,
+                            // but the elapsed time still refers to the one just finished,
+                            // to avoid this we do not update the elapsed time
+                            return
+                        }
+                        self.elapsedTime = elapsedTime
                     }
                 } catch {
                     preconditionFailure("Unexpected error \(error)")
@@ -490,8 +504,18 @@ private extension JustAudioPlayer {
     func subscribeToDuration() {
         durationSubscription = SAPlayer.Updates.Duration
             .subscribe { [weak self] duration in
-                // TODO: this should take in account whether we are reproducing a ClippingAudioSource and adjust the duration (end - start)
-                self?.duration = duration
+
+                guard let self = self else { return }
+
+                guard let currentIndex = self.queueIndex else {
+                    self.duration = duration
+                    return
+                }
+                if let clipped = (try? self.queueManager.element(at: currentIndex)) as? ClippingAudioSource {
+                    self.duration = clipped.duration
+                } else {
+                    self.duration = duration
+                }
             }
     }
 
@@ -505,7 +529,6 @@ private extension JustAudioPlayer {
         if let subscription = playingStatusSubscription {
             SAPlayer.Updates.PlayingStatus.unsubscribe(subscription)
         }
-
         if let subscription = streamingBufferSubscription {
             SAPlayer.Updates.StreamingBuffer.unsubscribe(subscription)
         }
