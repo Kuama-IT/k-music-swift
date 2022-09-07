@@ -35,6 +35,13 @@ class ViewController: UIViewController {
                 self.seekSlider.maximumValue = Float(duration)
             }).store(in: &cancellables)
 
+        jap.$queueIndex
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { index in
+                print("Reproducing \(index) song")
+            }.store(in: &cancellables)
+
         jap.$elapsedTime
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
@@ -94,11 +101,11 @@ class ViewController: UIViewController {
         let remote2 = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
 
         do {
-            let clipping = try ClippingAudioSource(with: remote2, from: 50.0, to: 60.0)
+            let clipping = try ClippingAudioSource(with: local, from: 1.0, to: 2.0)
 
-            jap.addAudioSource(ConcatenatingAudioSequence(with: [clipping, remote, local]))
+            jap.addAudioSource(ConcatenatingAudioSequence(with: [clipping, local]))
             try jap.setVolume(0.1)
-            jap.setLoopMode(.all)
+//            jap.setLoopMode(.all)
             try jap.play()
         } catch {
             handleError(error: error)

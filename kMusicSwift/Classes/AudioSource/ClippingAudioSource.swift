@@ -27,9 +27,9 @@ public class ClippingAudioSource: AudioSource {
         start = from
         end = to
 
-        guard start < end else {
-            throw ClippingAudioStartEndError()
-        }
+//        guard start < end else {
+//            throw ClippingAudioStartEndError()
+//        }
         realAudioSource = singleAudioSource
     }
 
