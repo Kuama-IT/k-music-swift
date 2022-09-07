@@ -11,7 +11,7 @@
 - [ ] Time stretching (1x, 2x)
 - [x] Buffer position (on download from http)
 - [x] Shuffling
-- [ ] Clipping
+- [x] Clipping
 - [x] Playlist editing
 
 # Audio effects

@@ -15,6 +15,8 @@ public class ClippingAudioSource: AudioSource {
     let start: Double
     let end: Double
 
+    var duration: Double { end - start }
+
     public var playingStatus: AudioSourcePlayingStatus {
         realAudioSource.playingStatus
     }
@@ -27,9 +29,9 @@ public class ClippingAudioSource: AudioSource {
         start = from
         end = to
 
-//        guard start < end else {
-//            throw ClippingAudioStartEndError()
-//        }
+        guard start < end else {
+            throw ClippingAudioStartEndError()
+        }
         realAudioSource = singleAudioSource
     }
 
