@@ -301,22 +301,76 @@ public class JustAudioPlayer {
             case is RemoteAudioSource:
                 SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
             case let audioSource as ClippingAudioSource:
-                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                if audioSource.isLocal {
+                    SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+                } else {
+                    SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                }
+
                 seek(second: audioSource.start)
             default:
                 // TODO: should we throw?
                 preconditionFailure("Don't know how to play \(audioSource.self)")
             }
-            let subId = SAPlayer.Updates.StreamingBuffer.subscribe {
-                if $0.isReadyForPlaying {
-                    SAPlayer.shared.play()
+
+            let actWhenAudioSourceIsReady = {
+                self.subscribeToAllSubscriptions()
+
+                SAPlayer.shared.play()
+            }
+
+            // start to play when we have loaded at least a `audioSource.startingTime` amount of reproducible audio.
+            // When seeking a remote audio before playiing it, we receive a set of playingStatus updates that we doo not care for:
+            unsubscribeUpdates()
+
+            // buffer updates are not triggered for local audio sources (not seeked)
+            if audioSource.isLocal {
+                actWhenAudioSourceIsReady()
+                return
+            }
+
+            // notify we're loading the audio source
+            isPlaying = false
+            processingState = .loading
+
+            // following code is not so elegant, and fragile. It can probably benefit of a refactor where we enhance
+            // the coordination of the statuses of the player and move them to a own class
+            var subId: UInt?
+            subId = SAPlayer.Updates.StreamingBuffer.subscribe {
+                guard let subscription = subId else {
+                    return
+                }
+
+                print("total: \($0.totalDurationBuffered) - starting \(audioSource.startingTime)")
+
+                let remoteCanPlay = $0.totalDurationBuffered > audioSource.startingTime && $0.isReadyForPlaying
+                let localCanPlay = audioSource.isLocal
+
+                if remoteCanPlay || localCanPlay {
+                    SAPlayer.Updates.StreamingBuffer.unsubscribe(subscription)
+                    actWhenAudioSourceIsReady()
                 }
             }
-            if isPlaying {
-                // TODO: find a way to unsubscribe while playing inside the subscribe
-                SAPlayer.Updates.StreamingBuffer.unsubscribe(subId)
-            }
         }
+    }
+}
+
+// MARK: - AudioSource extensions
+
+extension AudioSource {
+    var startingTime: Double {
+        guard let audioSource = self as? ClippingAudioSource else {
+            return 0
+        }
+        return audioSource.start
+    }
+
+    var isLocal: Bool {
+        guard let audioSource = self as? ClippingAudioSource else {
+            return self is LocalAudioSource
+        }
+
+        return audioSource.realAudioSource is LocalAudioSource
     }
 }
 
@@ -364,11 +418,6 @@ private extension JustAudioPlayer {
                     let convertedTrackStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
                     let audioSource = try self.queueManager.element(at: queueIndex)
-//                    if(convertedTrackStatus == .paused && self.processingState == .loading && audioSource.playingStatus == .buffering) {
-//                        // SAPlayer sometimes, on remote songs, after we force a skip, puts itself into pause. We do not want this behaviour
-//                        SAPlayer.shared.play()
-//                        return
-//                    }
 
                     try audioSource.setPlayingStatus(convertedTrackStatus)
 
@@ -405,7 +454,6 @@ private extension JustAudioPlayer {
     func subscribeToBufferPosition() {
         streamingBufferSubscription = SAPlayer.Updates.StreamingBuffer
             .subscribe { [weak self] buffer in
-                // TODO: once we hook to the UI verify this is the correct value to proxy
                 self?.bufferPosition = buffer.bufferingProgress
             }
     }
@@ -413,7 +461,10 @@ private extension JustAudioPlayer {
     func subscribeToElapsedTime() {
         streamingBufferSubscription = SAPlayer.Updates.ElapsedTime
             .subscribe { [weak self] elapsedTime in // let's assume this is expressed in seconds
+                // TODO: this should take in account whether we are reproducing a ClippingAudioSource and adjust the elapsed
+                // Eg., if we're clipping starting from 30, when elapsedTime is 30 we should notify a 0, and so on
                 self?.elapsedTime = elapsedTime
+
                 do {
                     guard let currentIndex = self?.queueIndex else {
                         return
@@ -439,6 +490,7 @@ private extension JustAudioPlayer {
     func subscribeToDuration() {
         durationSubscription = SAPlayer.Updates.Duration
             .subscribe { [weak self] duration in
+                // TODO: this should take in account whether we are reproducing a ClippingAudioSource and adjust the duration (end - start)
                 self?.duration = duration
             }
     }
