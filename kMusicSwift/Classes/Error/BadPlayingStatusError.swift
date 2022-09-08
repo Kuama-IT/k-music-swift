@@ -6,7 +6,7 @@
 // Running on macOS 12.5
 //
 
-/*
+/**
  * The given playing status for `AudioSource` is not valid
  */
 public class BadPlayingStatusError: JustAudioPlayerError {

@@ -6,7 +6,7 @@
 // Running on macOS 12.5
 //
 
-/*
+/**
  * Thrown when trying to access an `AudioSource` with a wrong index
  */
 public class QueueIndexOutOfBoundError: JustAudioPlayerError {

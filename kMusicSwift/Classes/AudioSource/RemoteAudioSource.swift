@@ -12,6 +12,10 @@
 public class RemoteAudioSource: AudioSource {
     public var playingStatus: AudioSourcePlayingStatus = .idle
 
+    public var isLocal: Bool {
+        return false
+    }
+
     public private(set) var audioUrl: URL?
 
     public init(at uri: String) {

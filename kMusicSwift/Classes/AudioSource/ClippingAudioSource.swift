@@ -12,6 +12,10 @@
 public class ClippingAudioSource: AudioSource {
     public private(set) var realAudioSource: AudioSource
 
+    public var isLocal: Bool {
+        return realAudioSource.isLocal
+    }
+
     let start: Double
     let end: Double
 

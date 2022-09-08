@@ -1,3 +1,11 @@
+//
+// JustAudioPlayer.swift
+// kMusicSwift
+// Created by Kuama Dev Team on 01/09/22
+// Using Swift 5.0
+// Running on macOS 12.5
+//
+
 import AVFoundation
 import Combine
 import Darwin
@@ -29,31 +37,34 @@ public class JustAudioPlayer {
 
     // MARK: - Event Streams
 
-    // whether we're currently playing a song
+    /// whether we're currently playing a song
     @Published public private(set) var isPlaying: Bool = false
 
-    // the current loop mode
+    /// the current loop mode
     @Published public private(set) var loopMode: LoopMode = .off
 
-    // player node volume value
+    /// player node volume value
     @Published public private(set) var volume: Float?
 
-    // buffer duration
+    /// buffer duration
     @Published public private(set) var bufferPosition: Double?
 
-    // track duration
+    /// track duration
     @Published public private(set) var duration: Double?
 
-    // processing state
+    /// processing state
     @Published public private(set) var processingState: ProcessingState = .none
 
-    // elapsed time
+    /// elapsed time
     @Published public private(set) var elapsedTime: Double?
 
-    // Tracks which track is being reproduced (currentIndexStream)
+    /// tracks which track is being reproduced (currentIndexStream)
     @Published public private(set) var queueIndex: Int?
 
-    // Whether the tracks in the queue are played in shuffled order
+    /// equalizer node, allows to provide presets
+    @Published public private(set) var equalizer: Equalizer?
+
+    /// Whether the tracks in the queue are played in shuffled order
     public var isShuffling: Published<Bool>.Publisher {
         queueManager.$shouldShuffle
     }
@@ -141,6 +152,7 @@ public class JustAudioPlayer {
         queueManager.clear()
         queueIndex = 0
         unsubscribeUpdates()
+        equalizer = nil
     }
 
     /// seek to a determinate value, default is 10 second forward
@@ -218,6 +230,70 @@ public class JustAudioPlayer {
 
     // TODO:
     public func setClip(start _: TimeInterval? = nil, end _: TimeInterval? = nil) {}
+
+    /**
+     Allows to provide an equalizer to the player
+     */
+    public func setEqualizer(_ equalizer: Equalizer) throws {
+        guard self.equalizer == nil else {
+            throw AlreadyHasEqualizerError()
+        }
+
+        self.equalizer = equalizer
+        SAPlayer.shared.audioModifiers.append(self.equalizer!.node)
+    }
+
+    /**
+     Allows to update the presets for the current `Equalizer` instance
+     */
+    public func updateEqualizerPresets(_ preset: [PreSet]) throws {
+        guard let equalizer = equalizer else {
+            throw MissingEqualizerError()
+        }
+
+        try equalizer.setPreSets(preset)
+
+        self.equalizer = equalizer
+    }
+
+    /**
+     Activates the preset at the given index for the current equalizer
+     */
+    public func activateEqualizerPreset(at index: Int) throws {
+        guard let equalizer = equalizer else {
+            throw MissingEqualizerError()
+        }
+
+        try equalizer.activate(preset: index)
+
+        self.equalizer = equalizer
+    }
+
+    /**
+     Allows to tweak the gain of a specific band of the current equalizer
+     */
+    public func tweakEqualizerBandGain(band: Int, gain: Float) throws {
+        guard let equalizer = equalizer else {
+            throw MissingEqualizerError()
+        }
+
+        try equalizer.tweakBandGain(band: band, gain: gain)
+
+        self.equalizer = equalizer
+    }
+
+    /**
+     Removes the current pre
+     */
+    public func resetGains() throws {
+        guard let equalizer = equalizer else {
+            throw MissingEqualizerError()
+        }
+
+        equalizer.resetGains()
+
+        self.equalizer = equalizer
+    }
 
     // MARK: - Private API
 
@@ -356,8 +432,6 @@ public class JustAudioPlayer {
                     return
                 }
 
-                print("total: \($0.totalDurationBuffered) - starting \(audioSource.startingTime)")
-
                 let remoteCanPlay = $0.totalDurationBuffered > audioSource.startingTime && $0.isReadyForPlaying
                 let localCanPlay = audioSource.isLocal
 
@@ -366,28 +440,6 @@ public class JustAudioPlayer {
                     actWhenAudioSourceIsReady()
                 }
             }
-        }
-    }
-}
-
-// MARK: - AudioSource extensions
-
-extension AudioSource {
-    var startingTime: Double {
-        guard let audioSource = self as? ClippingAudioSource else {
-            return 0
-        }
-        return audioSource.start
-    }
-
-    var isLocal: Bool {
-        switch self {
-        case let audioSource as ClippingAudioSource:
-            return audioSource.realAudioSource is LocalAudioSource
-        case let audioSource as LoopingAudioSource:
-            return audioSource.realAudioSource is LocalAudioSource
-        default:
-            return self is LocalAudioSource
         }
     }
 }

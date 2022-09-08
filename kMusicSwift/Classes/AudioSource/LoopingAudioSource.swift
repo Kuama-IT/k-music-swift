@@ -17,6 +17,10 @@ public class LoopingAudioSource: AudioSource {
 
     public private(set) var realAudioSource: AudioSource
 
+    public var isLocal: Bool {
+        return realAudioSource.isLocal
+    }
+
     public var playingStatus: AudioSourcePlayingStatus {
         realAudioSource.playingStatus
     }
