@@ -226,9 +226,18 @@ public class JustAudioPlayer {
      * If we're on the last track of the queue or the queue is empty, the queueIndex will not change.
      * `LoopMode.one` works only when a track finishes by itself.
      * - Parameter isForced: whether the next song must be played (ex. seek to next)
+     * - Note: if the current `AudioSource` is a `LoopingAudioSource`, it has priority on looping itself
      */
     func tryMoveToNextTrack(isForced: Bool = false) throws -> AudioSource? {
         let currentIndex = queueIndex ?? 0
+
+        if let looping = try queueManager.element(at: currentIndex) as? LoopingAudioSource {
+            if looping.playedTimes < looping.count {
+                looping.playedTimes += 1
+                queueIndex = currentIndex
+                return looping.realAudioSource
+            }
+        }
 
         if !isForced {
             // do not change the index, and return the current track
@@ -302,6 +311,12 @@ public class JustAudioPlayer {
                 } else {
                     SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
                 }
+            case let audioSource as LoopingAudioSource:
+                if audioSource.isLocal {
+                    SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+                } else {
+                    SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                }
             case is LocalAudioSource:
                 SAPlayer.shared.startSavedAudio(withSavedUrl: url)
             case is RemoteAudioSource:
@@ -366,11 +381,14 @@ extension AudioSource {
     }
 
     var isLocal: Bool {
-        guard let audioSource = self as? ClippingAudioSource else {
+        switch self {
+        case let audioSource as ClippingAudioSource:
+            return audioSource.realAudioSource is LocalAudioSource
+        case let audioSource as LoopingAudioSource:
+            return audioSource.realAudioSource is LocalAudioSource
+        default:
             return self is LocalAudioSource
         }
-
-        return audioSource.realAudioSource is LocalAudioSource
     }
 }
 
