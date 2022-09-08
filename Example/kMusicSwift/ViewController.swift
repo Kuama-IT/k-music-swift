@@ -99,12 +99,19 @@ class ViewController: UIViewController {
         let local = LocalAudioSource(at: "random.mp3")
         let local2 = LocalAudioSource(at: "nature.mp3")
         let looping = LoopingAudioSource(with: local2, count: 5)
-        _ = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
+        let remote = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
 
         do {
+            let eq = try Equalizer(preSets: [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [4, 6, 5, 0, 1, 3, 5, 4.5, 3.5, 0],
+                [4, 3, 2, 2.5, -1.5, -1.5, 0, 1, 2, 3],
+                [5, 4, 3.5, 3, 1, 0, 0, 0, 0, 0],
+            ])
+            try jap.setEqualizer(eq)
             _ = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
 
-            jap.addAudioSource(ConcatenatingAudioSequence(with: [looping]))
+            jap.addAudioSource(IndexedAudioSequence(with: remote))
             try jap.setVolume(0.1)
             jap.setLoopMode(.off)
             try jap.play()
@@ -159,6 +166,29 @@ class ViewController: UIViewController {
     @IBAction func onVolumeChanged(_ sender: UISlider) {
         do {
             try jap.setVolume(sender.value)
+        } catch {
+            handleError(error: error)
+        }
+    }
+
+    @IBAction func onEqualizeStatusChange(_ sender: UISwitch) {
+        do {
+            if sender.isOn {
+                try jap.activateEqualizerPreset(at: 1)
+            } else {
+                try jap.resetGains()
+            }
+        } catch {
+            handleError(error: error)
+        }
+    }
+
+    @IBAction func onBandValueChange(_ sender: UISlider) {
+        do {
+            try jap.tweakEqualizerBandGain(band: 1, gain: sender.value * 10)
+            try jap.tweakEqualizerBandGain(band: 3, gain: sender.value * 10)
+            try jap.tweakEqualizerBandGain(band: 5, gain: sender.value * 10)
+            try jap.tweakEqualizerBandGain(band: 7, gain: sender.value * 10)
         } catch {
             handleError(error: error)
         }

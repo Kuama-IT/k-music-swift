@@ -13,6 +13,10 @@
 public class LocalAudioSource: AudioSource {
     public var playingStatus: AudioSourcePlayingStatus = .idle
 
+    public var isLocal: Bool {
+        return true
+    }
+
     public var audioUrl: URL? {
         return _audioUrl
     }

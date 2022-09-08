@@ -6,7 +6,7 @@
 // Running on macOS 12.5
 //
 
-/*
+/**
  * Thrown when trying to remove an `AudioSource` that is playing or buffering
  */
 public class CannotRemoveAudioSourceFromSequenceError: JustAudioPlayerError {

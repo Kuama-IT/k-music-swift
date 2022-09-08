@@ -11,6 +11,19 @@ public protocol AudioSource {
 
     var playingStatus: AudioSourcePlayingStatus { get }
 
+    var isLocal: Bool { get }
+
     /// Should enforce the correct flow of the status of a track
     func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws
+}
+
+// MARK: - AudioSource extensions
+
+extension AudioSource {
+    var startingTime: Double {
+        guard let audioSource = self as? ClippingAudioSource else {
+            return 0
+        }
+        return audioSource.start
+    }
 }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0470B0AA28C1FF60001AF55E /* AudioSequenceQueueManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0470B0A928C1FF60001AF55E /* AudioSequenceQueueManagerTest.swift */; };
 		048538C328BE2ECC003454FD /* nature.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 048538C228BE2ECC003454FD /* nature.mp3 */; };
+		04DD772E28C9E9A400B9CFCB /* EqualizerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DD772D28C9E9A400B9CFCB /* EqualizerTest.swift */; };
 		04DFEF2928B8F7C300DCE3DA /* JustAudioPlayerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DFEF2828B8F7C300DCE3DA /* JustAudioPlayerTest.swift */; };
 		04DFEF3128BCA35A00DCE3DA /* AudioSource.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 04DFEF3028BCA35A00DCE3DA /* AudioSource.mp3 */; };
 		37EAD0B65CD1E5ADEF899832 /* Pods_kMusicSwift_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A76C5F2ADA03F6CC57853D8 /* Pods_kMusicSwift_Tests.framework */; };
@@ -35,6 +36,7 @@
 /* Begin PBXFileReference section */
 		0470B0A928C1FF60001AF55E /* AudioSequenceQueueManagerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSequenceQueueManagerTest.swift; sourceTree = "<group>"; };
 		048538C228BE2ECC003454FD /* nature.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = nature.mp3; sourceTree = "<group>"; };
+		04DD772D28C9E9A400B9CFCB /* EqualizerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualizerTest.swift; sourceTree = "<group>"; };
 		04DFEF2828B8F7C300DCE3DA /* JustAudioPlayerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JustAudioPlayerTest.swift; sourceTree = "<group>"; };
 		04DFEF3028BCA35A00DCE3DA /* AudioSource.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = AudioSource.mp3; sourceTree = "<group>"; };
 		1A01745C5DC4D91F9DD171AC /* Pods_kMusicSwift_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_kMusicSwift_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +133,7 @@
 			children = (
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 				04DFEF2828B8F7C300DCE3DA /* JustAudioPlayerTest.swift */,
+				04DD772D28C9E9A400B9CFCB /* EqualizerTest.swift */,
 				0470B0A928C1FF60001AF55E /* AudioSequenceQueueManagerTest.swift */,
 			);
 			path = Tests;
@@ -365,6 +368,7 @@
 			files = (
 				04DFEF2928B8F7C300DCE3DA /* JustAudioPlayerTest.swift in Sources */,
 				0470B0AA28C1FF60001AF55E /* AudioSequenceQueueManagerTest.swift in Sources */,
+				04DD772E28C9E9A400B9CFCB /* EqualizerTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

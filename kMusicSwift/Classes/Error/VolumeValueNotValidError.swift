@@ -6,7 +6,7 @@
 //
 
 /**
- * The given value for volume is not valid
+ * Thrown when the given value for volume is not valid
  */
 public class VolumeValueNotValidError: JustAudioPlayerError {
     public let value: Float

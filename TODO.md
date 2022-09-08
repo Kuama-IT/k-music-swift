@@ -17,8 +17,8 @@
 # Audio effects
 - [ ] Multiple tracks in one time
 - [ ] Audio effects on a per-track basis
-- [ ] Mixer
-- [ ] Mixer presets
+- [x] Mixer
+- [x] Mixer presets
 - [ ] Mixed output to file (or stream?)
 
 # Streams (event channels)
