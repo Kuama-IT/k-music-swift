@@ -101,4 +101,52 @@ class AudioSequenceQueueManagerTest: XCTestCase {
 
         assert(source.audioUrl == localSources[4].audioUrl)
     }
+
+    func testItCaresAboutLooping() {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+
+        let looping = LoopingAudioSource(with: localAudio, count: 3)
+
+        let queueManager = AudioSequenceQueueManager()
+
+        queueManager.addAll(sources: [ConcatenatingAudioSequence(with: [looping])])
+
+        assert(queueManager.count == 1)
+    }
+
+    func testItCaresAboutLoopingAndOtherSources() {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+
+        let looping = LoopingAudioSource(with: localAudio, count: 3)
+
+        let queueManager = AudioSequenceQueueManager()
+
+        let otherAudioSources: [AudioSequence] = [
+            ConcatenatingAudioSequence(with: [localAudio, looping]),
+            IndexedAudioSequence(with: localAudio),
+            IndexedAudioSequence(with: looping),
+        ]
+
+        queueManager.addAll(sources: otherAudioSources)
+
+        assert(queueManager.count == 4)
+    }
+
+    func testItCarriesLotsOfSongs() {
+        let localAudio = LocalAudioSource(at: "sample.mp3")
+        let remoteAudio = RemoteAudioSource(at: "http://in.web/sample.mp3")
+        let looping = LoopingAudioSource(with: localAudio, count: 3)
+        let looping2 = LoopingAudioSource(with: remoteAudio, count: 5)
+        let queueManager = AudioSequenceQueueManager()
+
+        let otherAudioSources: [AudioSequence] = [
+            ConcatenatingAudioSequence(with: (1 ... 100).map { _ in looping }),
+            ConcatenatingAudioSequence(with: (1 ... 100).map { _ in localAudio }),
+            ConcatenatingAudioSequence(with: (1 ... 100).map { _ in looping2 }),
+        ]
+
+        queueManager.addAll(sources: otherAudioSources)
+
+        assert(queueManager.count == 300)
+    }
 }

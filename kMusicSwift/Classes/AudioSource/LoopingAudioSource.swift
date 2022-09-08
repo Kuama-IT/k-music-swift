@@ -10,10 +10,12 @@
  An `AudioSource` that loops for N times before being considered "finished"
  */
 public class LoopingAudioSource: AudioSource {
-    // The number of times this audio source should loop
+    /// The number of times this audio source should loop
     let count: Int
+    /// the times that this track has been played.
+    public var playedTimes: Int = 0
 
-    private var realAudioSource: AudioSource
+    public private(set) var realAudioSource: AudioSource
 
     public var playingStatus: AudioSourcePlayingStatus {
         realAudioSource.playingStatus

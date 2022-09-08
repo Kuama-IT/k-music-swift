@@ -95,19 +95,18 @@ class ViewController: UIViewController {
             })
             .store(in: &cancellables)
 
-        let remote = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
-
+        _ = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
         let local = LocalAudioSource(at: "random.mp3")
         let local2 = LocalAudioSource(at: "nature.mp3")
-
-        let remote2 = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
+        let looping = LoopingAudioSource(with: local2, count: 5)
+        _ = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
 
         do {
-            let clipping = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
+            _ = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
 
-            jap.addAudioSource(ConcatenatingAudioSequence(with: [clipping]))
+            jap.addAudioSource(ConcatenatingAudioSequence(with: [looping]))
             try jap.setVolume(0.1)
-            jap.setLoopMode(.all)
+            jap.setLoopMode(.off)
             try jap.play()
         } catch {
             handleError(error: error)
