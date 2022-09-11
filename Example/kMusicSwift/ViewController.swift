@@ -107,6 +107,16 @@ class ViewController: UIViewController {
             })
             .store(in: &cancellables)
 
+        jap.$outputWriteError
+            .compactMap { $0 }.receive(on: DispatchQueue.main)
+            .sink { print("\($0)") }
+            .store(in: &cancellables)
+
+        jap.$outputAbsolutePath
+            .compactMap { $0 }.receive(on: DispatchQueue.main)
+            .sink { print("\($0)") }
+            .store(in: &cancellables)
+
         _ = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
         let local = LocalAudioSource(at: "random.mp3")
         let local2 = LocalAudioSource(at: "nature.mp3")
@@ -122,6 +132,8 @@ class ViewController: UIViewController {
             ])
             try jap.setEqualizer(eq)
             _ = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
+
+            try jap.writeOutputToFile()
 
             jap.addAudioSource(IndexedAudioSequence(with: remote))
             try jap.setVolume(0.1)
