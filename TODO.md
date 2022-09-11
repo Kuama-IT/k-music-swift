@@ -1,11 +1,9 @@
 # Main Features
 - [ ] Icy Metadata (?)
 - [x] Volume
-- [ ] Composite state (?)
 - [x] Loop modes
 - [x] Request headers
 - [x] Concatenating 
-- [ ] Gapless transitions
 - [ ] HLS (?)
 - [x] Radio/Livestreams
 - [x] Time stretching (1x, 2x)
@@ -19,7 +17,7 @@
 - [ ] Audio effects on a per-track basis
 - [x] Mixer
 - [x] Mixer presets
-- [ ] Mixed output to file (or stream?)
+- [x] Mixed output to file (or stream?)
 
 # Streams (event channels)
 - [ ] playerStateStream

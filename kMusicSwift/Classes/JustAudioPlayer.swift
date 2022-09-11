@@ -67,6 +67,12 @@ public class JustAudioPlayer {
     /// equalizer node, allows to provide presets
     @Published public private(set) var equalizer: Equalizer?
 
+    /// any errors occurred while writing the output file will be published here
+    @Published public private(set) var outputWriteError: Error?
+
+    /// the full path to the output file
+    @Published public private(set) var outputAbsolutePath: String?
+
     /// Whether the tracks in the queue are played in shuffled order
     public var isShuffling: Published<Bool>.Publisher {
         queueManager.$shouldShuffle
@@ -299,6 +305,36 @@ public class JustAudioPlayer {
         equalizer.resetGains()
 
         self.equalizer = equalizer
+    }
+
+    public func writeOutputToFile() throws {
+        guard let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            throw CouldNotCreateOutputFileError()
+        }
+
+        guard let engine = SAPlayer.shared.engine else {
+            throw InconsistentStateError(message: "Engine is not ready")
+        }
+
+        let outputFileUrl = documentsDirectoryURL.appendingPathComponent(Date.now.ISO8601Format())
+
+        // Handy while testing to retrieve quickly the file inside the OS filesystem
+        outputAbsolutePath = outputFileUrl.absoluteString
+
+        // We need some settings for the output audio file. The quickiest way to test this is to grab the same settings of the output node of the engine.
+        // Sadly it defaults to WAV format for the output file, and since we're planning to upload this file to the server, is the less performant format
+        // Some work should be done to extrapolate a good settings configuration
+        let settings = engine.outputNode.outputFormat(forBus: 0).settings
+
+        let outputFile = try AVAudioFile(forWriting: outputFileUrl, settings: settings)
+
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 4096, format: nil) { [weak self] buffer, _ in
+            do {
+                try outputFile.write(from: buffer)
+            } catch {
+                self?.outputWriteError = error
+            }
+        }
     }
 
     // MARK: - Private API
