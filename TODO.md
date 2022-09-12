@@ -31,7 +31,7 @@
 - [x] currentIndexStream
 - [ ] icyMetadataStream
 - [x] playingStream
-- [ ] processingStateStream
+- [x] processingStateStream
 - [x] loopModeStream
 - [x] shuffleModeEnabledStream
 - [x] volumeStream
