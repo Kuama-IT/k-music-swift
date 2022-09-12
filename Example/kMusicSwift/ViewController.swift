@@ -21,11 +21,23 @@ class ViewController: UIViewController {
     @IBOutlet var volumeSlider: UISlider!
     @IBOutlet var seekSlider: UISlider!
     @IBOutlet var volumeLabel: UILabel!
+    @IBOutlet var speedLabel: UILabel!
+    @IBOutlet var speedSlider: UISlider!
     @IBOutlet var seekLabel: UILabel!
 
     var cancellables: [AnyCancellable] = []
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        jap.$speed
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] speed in
+                guard let self = self else { return }
+                self.speedSlider.value = speed
+                let rounded = RoundingHelper.preciseRound(Double(speed), precision: .ones)
+                self.speedLabel.text = "Speed: \(rounded)/10"
+            }).store(in: &cancellables)
 
         jap.$duration
             .compactMap { $0 }
@@ -160,6 +172,14 @@ class ViewController: UIViewController {
     @IBAction func onSeekChanged(_ sender: UISlider) {
         if !sender.isTracking {
             jap.seek(second: Double(sender.value))
+        }
+    }
+
+    @IBAction func onSpeedChanged(_ sender: UISlider) {
+        do {
+            try jap.setSpeed(sender.value)
+        } catch {
+            handleError(error: error)
         }
     }
 

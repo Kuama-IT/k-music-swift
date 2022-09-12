@@ -8,7 +8,7 @@
 - [ ] Gapless transitions
 - [ ] HLS (?)
 - [x] Radio/Livestreams
-- [ ] Time stretching (1x, 2x)
+- [x] Time stretching (1x, 2x)
 - [x] Buffer position (on download from http)
 - [x] Shuffling
 - [x] Clipping
@@ -35,5 +35,5 @@
 - [x] loopModeStream
 - [x] shuffleModeEnabledStream
 - [x] volumeStream
-- [ ] speedStream
+- [x] speedStream
 - [ ] playbackEventStream
