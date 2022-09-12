@@ -30,8 +30,8 @@ public enum ProcessingState {
 @available(iOS 15.0, *)
 public class JustAudioPlayer {
     /**
-     Represents the time that must elapse before choose to restart a song or seek to the previous one.
-     Expressed in seconds
+     * Represents the time that must elapse before choose to restart a song or seek to the previous one.
+     * Expressed in seconds
      */
     private static let ELAPSED_TIME_TO_RESTART_A_SONG = 5.0
 
@@ -45,6 +45,9 @@ public class JustAudioPlayer {
 
     /// player node volume value
     @Published public private(set) var volume: Float?
+
+    /// player node speed
+    @Published public private(set) var speed: Float?
 
     /// buffer duration
     @Published public private(set) var bufferPosition: Double?
@@ -72,8 +75,8 @@ public class JustAudioPlayer {
     // MARK: - Http headers
 
     /**
-     Allows to set the http headers of the request that the player internally does to retrieve a stream or a single audio.
-     These headers are unique for player, and will be shared for all of the queued `AudioSource`
+     * Allows to set the http headers of the request that the player internally does to retrieve a stream or a single audio.
+     * These headers are unique for player, and will be shared for all of the queued `AudioSource`
      */
     var httpHeaders: [String: String] = [:] {
         didSet {
@@ -109,8 +112,8 @@ public class JustAudioPlayer {
     }
 
     /**
-     Starts to play the current queue of the player
-     If the player is already playing, calling this method will result in a no-op
+     * Starts to play the current queue of the player
+     * If the player is already playing, calling this method will result in a no-op
      */
     public func play() throws {
         guard let node = SAPlayer.shared.playerNode else {
@@ -134,7 +137,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     Pause the player, but keeps it ready to play (`queue` will not be dropped, `queueIndex` will not change)
+     * Pause the player, but keeps it ready to play (`queue` will not be dropped, `queueIndex` will not change)
      */
     public func pause() {
         processingState = .ready
@@ -142,7 +145,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     Stops the player, looses the queue and the current index
+     * Stops the player, looses the queue and the current index
      */
     public func stop() {
         processingState = .none
@@ -182,21 +185,24 @@ public class JustAudioPlayer {
         try queueManager.shuffle(at: index, inOrder: newOrder)
     }
 
-    // TODO:
-    public func setSpeed(_: Float) {
-        // hint:
-        // func scheduleFile(
-//          _ file: AVAudioFile,
-//          at when: AVAudioTime?,
-//          completionCallbackType callbackType: AVAudioPlayerNodeCompletionCallbackType,
-//          completionHandler: AVAudioPlayerNodeCompletionHandler? = nil
-//          )
-        // AVAudioTime.init(audioTimeStamp: UnsafePointer<AudioTimeStamp>, sampleRate: Double)
+    /**
+     * Sets the node speed
+     */
+    public func setSpeed(_ speed: Float) throws {
+        guard let node = SAPlayer.shared.audioModifiers[0] as? AVAudioUnitTimePitch else {
+            throw CannotFindAudioModifier()
+        }
+        guard speed > 0.0, speed <= 32.0 else {
+            throw SpeedValueNotValidError(value: speed)
+        }
+        self.speed = speed
+        node.rate = speed
+        SAPlayer.shared.playbackRateOfAudioChanged(rate: speed)
     }
 
     /**
-     Sets the node volume
-     N.B. it is the player node volume value, not the device's one
+     * Sets the node volume
+     * N.B. it is the player node volume value, not the device's one
      */
     public func setVolume(_ volume: Float) throws {
         guard volume >= 0.0 || volume <= 1.0 else {
@@ -207,15 +213,15 @@ public class JustAudioPlayer {
     }
 
     /**
-     Sets the player loop mode.
-     Warning: if one of the `AudioSources` in queue is a `LoopingAudioSource`, its "loop" will override the player loop
+     * Sets the player loop mode.
+     * Warning: if one of the `AudioSources` in queue is a `LoopingAudioSource`, its "loop" will override the * * player loop
      */
     public func setLoopMode(_ loopMode: LoopMode) {
         self.loopMode = loopMode
     }
 
     /**
-     Sets the next loop mode. Allow the user to keep touching the same button to toggle between the different `LoopMode`s
+     * Sets the next loop mode. Allow the user to keep touching the same button to toggle between the different `LoopMode`s
      */
     public func setNextLoopMode() {
         switch loopMode {
@@ -232,7 +238,7 @@ public class JustAudioPlayer {
     public func setClip(start _: TimeInterval? = nil, end _: TimeInterval? = nil) {}
 
     /**
-     Allows to provide an equalizer to the player
+     * Allows to provide an equalizer to the player
      */
     public func setEqualizer(_ equalizer: Equalizer) throws {
         guard self.equalizer == nil else {
@@ -244,7 +250,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     Allows to update the presets for the current `Equalizer` instance
+     * Allows to update the presets for the current `Equalizer` instance
      */
     public func updateEqualizerPresets(_ preset: [PreSet]) throws {
         guard let equalizer = equalizer else {
@@ -257,7 +263,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     Activates the preset at the given index for the current equalizer
+     * Activates the preset at the given index for the current equalizer
      */
     public func activateEqualizerPreset(at index: Int) throws {
         guard let equalizer = equalizer else {
@@ -270,7 +276,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     Allows to tweak the gain of a specific band of the current equalizer
+     * Allows to tweak the gain of a specific band of the current equalizer
      */
     public func tweakEqualizerBandGain(band: Int, gain: Float) throws {
         guard let equalizer = equalizer else {
@@ -283,7 +289,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     Removes the current pre
+     * Removes the current pre
      */
     public func resetGains() throws {
         guard let equalizer = equalizer else {
@@ -346,9 +352,8 @@ public class JustAudioPlayer {
         return nil
     }
 
-    /*
-     * Always try to push back the player
-     * no edge cases
+    /**
+     * Always try to push back the player*
      */
     func tryMoveToPreviousTrack() throws -> AudioSource {
         guard queueManager.count > 0 else {
@@ -463,8 +468,14 @@ private extension JustAudioPlayer {
                     return
                 }
 
+                // initial volume
                 if self.volume == nil {
                     self.volume = SAPlayer.shared.playerNode?.volume
+                }
+
+                // initial speed
+                if self.speed == nil {
+                    self.speed = (SAPlayer.shared.audioModifiers[0] as? AVAudioUnitTimePitch)?.rate
                 }
 
                 // Edge case:

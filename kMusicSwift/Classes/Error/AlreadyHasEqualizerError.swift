@@ -7,6 +7,6 @@
 //
 
 /**
- * Throwns when trying to set an equalizer before calling the stop player method
+ * Thrown when trying to set an equalizer before calling the stop player method
  */
 public class AlreadyHasEqualizerError: JustAudioPlayerError {}
