@@ -78,9 +78,9 @@ public class JustAudioPlayer {
         queueManager.$shouldShuffle
     }
 
-    private let engine = AVAudioEngine()
+    private var engine: AVAudioEngine!
 
-    private lazy var mainPlayer = SAPlayer(engine: engine)
+    private var mainPlayer: SAPlayer!
 
     // MARK: - Http headers
 
@@ -107,7 +107,10 @@ public class JustAudioPlayer {
 
     // MARK: - Constructor
 
-    public init() {
+    /// pass the same engine to different instance of `JustAudioPlayer` to play more track all together and handle actions and streams of the single track
+    public init(engine: AVAudioEngine = AVAudioEngine()) {
+        self.engine = engine
+        mainPlayer = SAPlayer(engine: engine)
         subscribeToAllSubscriptions()
     }
 

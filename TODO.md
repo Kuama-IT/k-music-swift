@@ -13,7 +13,7 @@
 - [x] Playlist editing
 
 # Audio effects
-- [ ] Multiple tracks in one time
+- [x] Multiple tracks in one time
 - [x] Audio effects on a per-track basis
 - [x] Mixer
 - [x] Mixer presets
