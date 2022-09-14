@@ -421,6 +421,9 @@ public class JustAudioPlayer {
 
     func play(track audioSource: AudioSource) {
         if let url = audioSource.audioUrl {
+            // Audio modifiers must be finalized before loading the audio into the player, or they will not be applied
+            activateEffects(for: audioSource)
+
             switch audioSource {
             case let audioSource as ClippingAudioSource:
                 if audioSource.isLocal {
@@ -443,6 +446,7 @@ public class JustAudioPlayer {
                 // TODO: should we throw?
                 preconditionFailure("Don't know how to play \(audioSource.self)")
             }
+
             seek(second: audioSource.startingTime)
 
             let actWhenAudioSourceIsReady = {
@@ -481,6 +485,26 @@ public class JustAudioPlayer {
                     actWhenAudioSourceIsReady()
                 }
             }
+        }
+    }
+
+    /// Cleans the current list of audio effects inside the `SAPlayer`, and updates the list with the effects specified by the received audio source
+    private func activateEffects(for audioSource: AudioSource) {
+        // We want to keep the first item (needed for the play rate, and the equalizer, if present)
+
+        let rateModifier = mainPlayer.audioModifiers.first! // we always expect this to exist
+
+        let equalizerModifier = mainPlayer.audioModifiers.first { audioUnit in
+            audioUnit == equalizer?.node
+        }
+
+        mainPlayer.clearAudioModifiers()
+
+        mainPlayer.audioModifiers = [rateModifier]
+        audioSource.effects.forEach { mainPlayer.addAudioModifier($0.effect) }
+
+        if let equalizer = equalizerModifier {
+            mainPlayer.audioModifiers.append(equalizer)
         }
     }
 }
@@ -528,9 +552,6 @@ private extension JustAudioPlayer {
                 // playing
                 // To avoid going to the next song in these situations, we need to know if the current track is really playing
 
-                // TODO: remove when stable
-                print(playingStatus)
-
                 do {
                     let convertedTrackStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
@@ -547,6 +568,8 @@ private extension JustAudioPlayer {
                     }
 
                     if currentTrackPlayingStatus == .ended {
+                        // TODO: it seems that time updates are keeping coming up even after the track finishes. Probably related to the `pause()` we commented on the `AudioStreamEngine` internal class, this needs some investigation. Meanwhile, keep this pause here
+                        self.mainPlayer.pause()
                         if let track = try self.tryMoveToNextTrack() {
                             self.play(track: track)
                         }

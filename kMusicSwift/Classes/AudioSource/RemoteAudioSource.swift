@@ -10,6 +10,8 @@
  An `AudioSource` the holds a single audio stream
  */
 public class RemoteAudioSource: AudioSource {
+    public var effects: [AudioEffect]
+
     public var playingStatus: AudioSourcePlayingStatus = .idle
 
     public var isLocal: Bool {
@@ -18,8 +20,9 @@ public class RemoteAudioSource: AudioSource {
 
     public private(set) var audioUrl: URL?
 
-    public init(at uri: String) {
+    public init(at uri: String, effects: [AudioEffect] = []) {
         audioUrl = URL(string: uri)
+        self.effects = effects
     }
 
     /// Enforces the correct flow of the status of a track

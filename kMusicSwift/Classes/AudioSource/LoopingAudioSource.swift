@@ -10,9 +10,12 @@
  An `AudioSource` that loops for N times before being considered "finished"
  */
 public class LoopingAudioSource: AudioSource {
+    public var effects: [AudioEffect]
+
     /// The number of times this audio source should loop
     let count: Int
-    /// the times that this track has been played.
+
+    /// The times that this track has been played.
     public var playedTimes: Int = 0
 
     public private(set) var realAudioSource: AudioSource
@@ -29,9 +32,10 @@ public class LoopingAudioSource: AudioSource {
         realAudioSource.audioUrl
     }
 
-    public init(with singleAudioSource: AudioSource, count: Int) {
+    public init(with singleAudioSource: AudioSource, count: Int, effects: [AudioEffect] = []) {
         self.count = count
         realAudioSource = singleAudioSource
+        self.effects = effects
     }
 
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {

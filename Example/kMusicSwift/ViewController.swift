@@ -118,11 +118,32 @@ class ViewController: UIViewController {
             .store(in: &cancellables)
 
         _ = RemoteAudioSource(at: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/123941/Yodel_Sound_Effect.mp3")
-        let local = LocalAudioSource(at: "random.mp3")
-        let local2 = LocalAudioSource(at: "nature.mp3")
-        let looping = LoopingAudioSource(with: local2, count: 5)
-        let remote = RemoteAudioSource(at: "https://www.fesliyanstudios.com/musicfiles/2019-04-23_-_Trusted_Advertising_-_www.fesliyanstudios.com/15SecVersion2019-04-23_-_Trusted_Advertising_-_www.fesliyanstudios.com.mp3")
 
+        let local2 = LocalAudioSource(at: "nature.mp3")
+        _ = LoopingAudioSource(with: local2, count: 5)
+        let delay = DelayAudioEffect()
+
+//        delay.setWetDryMix(90)
+        delay.setBypass(false)
+        delay.setDelayTime(1.0)
+        delay.setFeedback(80)
+
+        let reverb = ReverbAudioEffect()
+        reverb.setBypass(false)
+//        reverb.setPreset(.smallRoom)
+        reverb.setWetDryMix(300)
+
+        let distortion = DistortionAudioEffect()
+        distortion.setBypass(false)
+        distortion.setWetDryMix(40)
+
+        _ = RemoteAudioSource(at: "https://www.fesliyanstudios.com/musicfiles/2019-04-23_-_Trusted_Advertising_-" +
+            "_www.fesliyanstudios.com/15SecVersion2019-04-23_-_Trusted_Advertising_-_www.fesliyanstudios.com.mp3",
+            effects: [delay])
+//        let local = LocalAudioSource(at: "AudioSource.mp3", effects: [delay])
+        let local = LocalAudioSource(at: "AudioSource.mp3", effects: [reverb])
+//        let local = LocalAudioSource(at: "AudioSource.mp3", effects: [distortion])
+//        let local = LocalAudioSource(at: "AudioSource.mp3", effects: [])
         do {
             let eq = try Equalizer(preSets: [
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -131,11 +152,12 @@ class ViewController: UIViewController {
                 [5, 4, 3.5, 3, 1, 0, 0, 0, 0, 0],
             ])
             try jap.setEqualizer(eq)
-            _ = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
+            /*
+             _ = try ClippingAudioSource(with: local, from: 10.0, to: 15.0)
 
-            try jap.writeOutputToFile()
+             try jap.writeOutputToFile()*/
 
-            jap.addAudioSource(IndexedAudioSequence(with: remote))
+            jap.addAudioSource(IndexedAudioSequence(with: local))
             try jap.setVolume(0.1)
             jap.setLoopMode(.off)
             try jap.play()

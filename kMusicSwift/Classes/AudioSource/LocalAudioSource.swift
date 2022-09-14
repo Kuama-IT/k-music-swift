@@ -13,6 +13,8 @@
 public class LocalAudioSource: AudioSource {
     public var playingStatus: AudioSourcePlayingStatus = .idle
 
+    public var effects: [AudioEffect]
+
     public var isLocal: Bool {
         return true
     }
@@ -23,8 +25,9 @@ public class LocalAudioSource: AudioSource {
 
     private var _audioUrl: URL?
 
-    public init(at uri: String) {
+    public init(at uri: String, effects: [AudioEffect] = []) {
         _audioUrl = Bundle.main.url(forResource: uri, withExtension: "")
+        self.effects = effects
     }
 
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {
