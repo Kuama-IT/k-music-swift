@@ -13,6 +13,8 @@ public protocol AudioSource {
 
     var isLocal: Bool { get }
 
+    var effects: [AudioEffect] { get }
+
     /// Should enforce the correct flow of the status of a track
     func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws
 }

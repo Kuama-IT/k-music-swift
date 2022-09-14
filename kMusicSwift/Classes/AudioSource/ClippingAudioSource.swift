@@ -12,6 +12,8 @@
 public class ClippingAudioSource: AudioSource {
     public private(set) var realAudioSource: AudioSource
 
+    public var effects: [AudioEffect]
+
     public var isLocal: Bool {
         return realAudioSource.isLocal
     }
@@ -29,7 +31,7 @@ public class ClippingAudioSource: AudioSource {
         realAudioSource.audioUrl
     }
 
-    public init(with singleAudioSource: AudioSource, from: Double, to: Double) throws {
+    public init(with singleAudioSource: AudioSource, from: Double, to: Double, effects: [AudioEffect] = []) throws {
         start = from
         end = to
 
@@ -37,6 +39,7 @@ public class ClippingAudioSource: AudioSource {
             throw ClippingAudioStartEndError()
         }
         realAudioSource = singleAudioSource
+        self.effects = effects
     }
 
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {
