@@ -121,7 +121,7 @@ class ViewController: UIViewController {
         let local = LocalAudioSource(at: "random.mp3")
         let local2 = LocalAudioSource(at: "nature.mp3")
         let looping = LoopingAudioSource(with: local2, count: 5)
-        let remote = RemoteAudioSource(at: "https://ribgame.com/remote.mp3")
+        let remote = RemoteAudioSource(at: "https://www.fesliyanstudios.com/musicfiles/2019-04-23_-_Trusted_Advertising_-_www.fesliyanstudios.com/15SecVersion2019-04-23_-_Trusted_Advertising_-_www.fesliyanstudios.com.mp3")
 
         do {
             let eq = try Equalizer(preSets: [
