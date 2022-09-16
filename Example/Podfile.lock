@@ -1,22 +1,22 @@
 PODS:
   - kMusicSwift (0.1.0):
-    - SwiftAudioPlayer
-  - SwiftAudioPlayer (7.6.0)
+    - SwiftAudioPlayerKuama (~> 7.6.2)
+  - SwiftAudioPlayerKuama (7.6.2)
 
 DEPENDENCIES:
   - kMusicSwift (from `../`)
 
 SPEC REPOS:
   trunk:
-    - SwiftAudioPlayer
+    - SwiftAudioPlayerKuama
 
 EXTERNAL SOURCES:
   kMusicSwift:
     :path: "../"
 
 SPEC CHECKSUMS:
-  kMusicSwift: 4cf8f629a3ee0f3cf6bd36beb0bf14a42954c028
-  SwiftAudioPlayer: a546709faf47f3ab0cb59e41ba4432e6bb61db0a
+  kMusicSwift: e871f3bfbf8c6c622a386c06ca85ceb7a40f3009
+  SwiftAudioPlayerKuama: 9feeeb234358c2e0d52544ee727aedf317def515
 
 PODFILE CHECKSUM: 56b5c5cd8a151468f127f587a453ddd32157520d
 

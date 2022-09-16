@@ -10,7 +10,7 @@ import AVFoundation
 import Combine
 import Darwin
 import Foundation
-import SwiftAudioPlayer
+import SwiftAudioPlayerKuama
 
 public enum LoopMode {
     case off
@@ -78,6 +78,10 @@ public class JustAudioPlayer {
         queueManager.$shouldShuffle
     }
 
+    private let engine = AVAudioEngine()
+
+    private lazy var mainPlayer = SAPlayer(engine: engine)
+
     // MARK: - Http headers
 
     /**
@@ -86,7 +90,7 @@ public class JustAudioPlayer {
      */
     var httpHeaders: [String: String] = [:] {
         didSet {
-            SAPlayer.shared.HTTPHeaderFields = httpHeaders
+            mainPlayer.HTTPHeaderFields = httpHeaders
         }
     }
 
@@ -122,7 +126,7 @@ public class JustAudioPlayer {
      * If the player is already playing, calling this method will result in a no-op
      */
     public func play() throws {
-        guard let node = SAPlayer.shared.playerNode else {
+        guard let node = mainPlayer.playerNode else {
             // first time to play a song
             if let track = try tryMoveToNextTrack() {
                 processingState = .loading
@@ -138,7 +142,7 @@ public class JustAudioPlayer {
         } else {
             // player node is in pause
             processingState = .loading
-            SAPlayer.shared.play()
+            mainPlayer.play()
         }
     }
 
@@ -147,7 +151,7 @@ public class JustAudioPlayer {
      */
     public func pause() {
         processingState = .ready
-        SAPlayer.shared.pause()
+        mainPlayer.pause()
     }
 
     /**
@@ -155,9 +159,9 @@ public class JustAudioPlayer {
      */
     public func stop() {
         processingState = .none
-        SAPlayer.shared.stopStreamingRemoteAudio()
-        SAPlayer.shared.playerNode?.stop()
-        SAPlayer.shared.engine?.stop()
+        mainPlayer.stopStreamingRemoteAudio()
+        mainPlayer.playerNode?.stop()
+        engine.stop()
         queueManager.clear()
         queueIndex = 0
         unsubscribeUpdates()
@@ -166,7 +170,7 @@ public class JustAudioPlayer {
 
     /// seek to a determinate value, default is 10 second forward
     public func seek(second: Double = 10.0) {
-        SAPlayer.shared.seekTo(seconds: second)
+        mainPlayer.seekTo(seconds: second)
     }
 
     /// Skip to the next item
@@ -195,7 +199,7 @@ public class JustAudioPlayer {
      * Sets the node speed
      */
     public func setSpeed(_ speed: Float) throws {
-        guard let node = SAPlayer.shared.audioModifiers[0] as? AVAudioUnitTimePitch else {
+        guard let node = mainPlayer.audioModifiers[0] as? AVAudioUnitTimePitch else {
             throw CannotFindAudioModifier()
         }
         guard speed > 0.0, speed <= 32.0 else {
@@ -203,7 +207,7 @@ public class JustAudioPlayer {
         }
         self.speed = speed
         node.rate = speed
-        SAPlayer.shared.playbackRateOfAudioChanged(rate: speed)
+        mainPlayer.playbackRateOfAudioChanged(rate: speed)
     }
 
     /**
@@ -215,7 +219,7 @@ public class JustAudioPlayer {
             throw VolumeValueNotValidError(value: volume)
         }
         self.volume = volume
-        SAPlayer.shared.playerNode?.volume = volume
+        mainPlayer.playerNode?.volume = volume
     }
 
     /**
@@ -252,7 +256,7 @@ public class JustAudioPlayer {
         }
 
         self.equalizer = equalizer
-        SAPlayer.shared.audioModifiers.append(self.equalizer!.node)
+        mainPlayer.audioModifiers.append(self.equalizer!.node)
     }
 
     /**
@@ -310,10 +314,6 @@ public class JustAudioPlayer {
     public func writeOutputToFile() throws {
         guard let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw CouldNotCreateOutputFileError()
-        }
-
-        guard let engine = SAPlayer.shared.engine else {
-            throw InconsistentStateError(message: "Engine is not ready")
         }
 
         let outputFileUrl = documentsDirectoryURL.appendingPathComponent(Date.now.ISO8601Format())
@@ -397,7 +397,7 @@ public class JustAudioPlayer {
         }
         let currentIndex = queueIndex ?? 0
         // if track is playing for more than 5 second, restart the current track
-        if SAPlayer.shared.elapsedTime ?? 0 >= JustAudioPlayer.ELAPSED_TIME_TO_RESTART_A_SONG {
+        if mainPlayer.elapsedTime ?? 0 >= JustAudioPlayer.ELAPSED_TIME_TO_RESTART_A_SONG {
             queueIndex = currentIndex
             return try queueManager.element(at: currentIndex)
         }
@@ -424,20 +424,20 @@ public class JustAudioPlayer {
             switch audioSource {
             case let audioSource as ClippingAudioSource:
                 if audioSource.isLocal {
-                    SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+                    mainPlayer.startSavedAudio(withSavedUrl: url)
                 } else {
-                    SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                    mainPlayer.startRemoteAudio(withRemoteUrl: url)
                 }
             case let audioSource as LoopingAudioSource:
                 if audioSource.isLocal {
-                    SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+                    mainPlayer.startSavedAudio(withSavedUrl: url)
                 } else {
-                    SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                    mainPlayer.startRemoteAudio(withRemoteUrl: url)
                 }
             case is LocalAudioSource:
-                SAPlayer.shared.startSavedAudio(withSavedUrl: url)
+                mainPlayer.startSavedAudio(withSavedUrl: url)
             case is RemoteAudioSource:
-                SAPlayer.shared.startRemoteAudio(withRemoteUrl: url)
+                mainPlayer.startRemoteAudio(withRemoteUrl: url)
 
             default:
                 // TODO: should we throw?
@@ -448,7 +448,7 @@ public class JustAudioPlayer {
             let actWhenAudioSourceIsReady = {
                 self.subscribeToAllSubscriptions()
 
-                SAPlayer.shared.play()
+                self.mainPlayer.play()
             }
 
             // start to play when we have loaded at least a `audioSource.startingTime` amount of reproducible audio.
@@ -506,12 +506,12 @@ private extension JustAudioPlayer {
 
                 // initial volume
                 if self.volume == nil {
-                    self.volume = SAPlayer.shared.playerNode?.volume
+                    self.volume = self.mainPlayer.playerNode?.volume
                 }
 
                 // initial speed
                 if self.speed == nil {
-                    self.speed = (SAPlayer.shared.audioModifiers[0] as? AVAudioUnitTimePitch)?.rate
+                    self.speed = (self.mainPlayer.audioModifiers[0] as? AVAudioUnitTimePitch)?.rate
                 }
 
                 // Edge case:
