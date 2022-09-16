@@ -14,24 +14,25 @@
 
 # Audio effects
 - [ ] Multiple tracks in one time
-- [ ] Audio effects on a per-track basis
+- [x] Audio effects on a per-track basis
 - [x] Mixer
 - [x] Mixer presets
 - [x] Mixed output to file (or stream?)
 
 # Streams (event channels)
-- [ ] playerStateStream
+- [ ] icyMetadataStream (?) 
+- [ ] playerStateStream (combine playingStream and processingState stream)
+- [ ] sequenceStateStream (combine queue, currentIndexStream, shuffledIndexStream, shuffleModeEnabledStream and loopModeStream)
+- [ ] sequenceStream (queue)
+- [ ] playbackEventStream (combine processingStateStream, updateTime, updatePosition, bufferedPosition, duration,
+                            icyMetadata, currentIndex, androidAudioSessionId (ios???) streams)
 - [x] durationStream
 - [x] positionStream
 - [x] bufferedPositionStream
-- [ ] sequenceStateStream
-- [ ] sequenceStream
 - [x] currentIndexStream
-- [ ] icyMetadataStream
 - [x] playingStream
 - [x] processingStateStream
 - [x] loopModeStream
 - [x] shuffleModeEnabledStream
 - [x] volumeStream
 - [x] speedStream
-- [ ] playbackEventStream
