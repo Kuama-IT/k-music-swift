@@ -27,7 +27,7 @@ public enum ProcessingState {
     case completed
 }
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 public class JustAudioPlayer {
     /**
      * Represents the time that must elapse before choose to restart a song or seek to the previous one.
@@ -319,7 +319,7 @@ public class JustAudioPlayer {
             throw CouldNotCreateOutputFileError()
         }
 
-        let outputFileUrl = documentsDirectoryURL.appendingPathComponent(Date.now.ISO8601Format())
+        let outputFileUrl = documentsDirectoryURL.appendingPathComponent(Date().description)
 
         // Handy while testing to retrieve quickly the file inside the OS filesystem
         outputAbsolutePath = outputFileUrl.absoluteString
@@ -514,7 +514,7 @@ public class JustAudioPlayer {
 
 // MARK: - SwiftAudioPlayer private subscriptions
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 private extension JustAudioPlayer {
     func subscribeToAllSubscriptions() {
         subscribeToPlayingStatusUpdates()
