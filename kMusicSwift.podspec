@@ -10,7 +10,7 @@ See https://github.com/ryanheise/just_audio/tree/minor/just_audio#readme for a f
   s.homepage         = 'https://github.com/Kuama-IT/k-music-swift'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'cc18675dd6a3d8f9dd752f1bc3bc9210bda2938e' => 'daniele@kuama.net' }
-  s.source           = { :git => 'https://github.com/cc18675dd6a3d8f9dd752f1bc3bc9210bda2938e/kMusicSwift.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/Kuama-IT/k-music-swift.git', :tag => s.version.to_s }
 
   s.ios.deployment_target = '10.0'
 
