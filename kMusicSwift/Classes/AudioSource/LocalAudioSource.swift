@@ -27,13 +27,17 @@ public class LocalAudioSource: AudioSource {
 
     public init(at uri: String, effects: [AudioEffect] = []) {
         _audioUrl = Bundle.main.url(forResource: uri, withExtension: "")
+        if _audioUrl == nil {
+            if uri.hasPrefix("ipod-library://") || uri.hasPrefix("file://") {
+                _audioUrl = URL(string: uri)
+            } else {
+                _audioUrl = URL(fileURLWithPath: uri)
+            }
+        }
         self.effects = effects
     }
 
     public func setPlayingStatus(_ nextStatus: AudioSourcePlayingStatus) throws {
-        if nextStatus == .buffering {
-            throw BadPlayingStatusError(value: nextStatus)
-        }
         switch playingStatus {
         case .playing:
             if nextStatus != .playing, nextStatus != .idle {
@@ -51,8 +55,8 @@ public class LocalAudioSource: AudioSource {
             if nextStatus != .ended, nextStatus != .paused {
                 playingStatus = nextStatus
             }
-        default:
-            throw BadPlayingStatusError(value: nextStatus)
+        case .buffering:
+            playingStatus = .buffering
         }
     }
 }

@@ -118,10 +118,12 @@ public class JustAudioPlayer {
 
     public func addAudioSource(_ sequence: AudioSequence) {
         queueManager.addAll(sources: [sequence])
+        processingState = .ready
     }
 
     public func removeAudioSource(at index: Int) throws {
         try queueManager.remove(at: index)
+        processingState = .ready
     }
 
     /**
@@ -130,22 +132,31 @@ public class JustAudioPlayer {
      */
     public func play() throws {
         guard let node = mainPlayer.playerNode else {
-            // first time to play a song
-            if let track = try tryMoveToNextTrack() {
-                processingState = .loading
-                play(track: track)
-            } else {
-                processingState = .completed
-            }
+            try scheduleAudioSource()
             return
         }
 
         if node.isPlaying {
             return
+        } else if processingState == .completed {
+            try scheduleAudioSource()
         } else {
             // player node is in pause
             processingState = .loading
             mainPlayer.play()
+        }
+    }
+
+    func scheduleAudioSource() throws {
+        if queueManager.count == 1 {
+            processingState = .loading
+            play(track: try queueManager.element(at: 0))
+            queueIndex = 0
+        } else if let track = try tryMoveToNextTrack() { // first time to play a song
+            processingState = .loading
+            play(track: track)
+        } else {
+            processingState = .completed
         }
     }
 
@@ -174,6 +185,7 @@ public class JustAudioPlayer {
     /// seek to a determinate value, default is 10 second forward
     public func seek(second: Double = 10.0) {
         mainPlayer.seekTo(seconds: second)
+        processingState = .ready
     }
 
     /// Skip to the next item
@@ -568,20 +580,26 @@ private extension JustAudioPlayer {
 
                     if currentTrackPlayingStatus == .buffering {
                         self.processingState = .buffering
+                    } else {
+                        self.processingState = .ready
                     }
 
                     if currentTrackPlayingStatus == .ended {
                         // TODO: it seems that time updates are keeping coming up even after the track finishes. Probably related to the `pause()` we commented on the `AudioStreamEngine` internal class, this needs some investigation. Meanwhile, keep this pause here
                         self.mainPlayer.pause()
+
                         if let track = try self.tryMoveToNextTrack() {
                             self.play(track: track)
+                        } else {
+                            self.processingState = .completed
+
+                            self.isPlaying = false
                         }
                     } else {
                         self.processingState = .completed
+                        // propagate status to subscribers
+                        self.isPlaying = currentTrackPlayingStatus == .playing
                     }
-
-                    // propagate status to subscribers
-                    self.isPlaying = currentTrackPlayingStatus == .playing
 
                     // As seen on Android
                     if self.isPlaying == true {
@@ -634,6 +652,7 @@ private extension JustAudioPlayer {
                             // when one track is finished, it could be that the next one starts,
                             // but the elapsed time still refers to the one just finished,
                             // to avoid this we do not update the elapsed time
+                            self.elapsedTime = self.duration
                             return
                         }
                         self.elapsedTime = elapsedTime
