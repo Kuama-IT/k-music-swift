@@ -73,6 +73,8 @@ public class JustAudioPlayer {
     /// the full path to the output file
     @Published public private(set) var outputAbsolutePath: String?
 
+    @Published public private(set) var globalEffects: [AudioEffect] = []
+
     /// Whether the tracks in the queue are played in shuffled order
     public var isShuffling: Published<Bool>.Publisher {
         queueManager.$shouldShuffle
@@ -124,6 +126,20 @@ public class JustAudioPlayer {
     public func removeAudioSource(at index: Int) throws {
         try queueManager.remove(at: index)
         processingState = .ready
+    }
+
+    public func addAudioEffect(_ audioEffect: AudioEffect) {
+        globalEffects.append(audioEffect)
+    }
+
+    public func removeAudioEffect(_ audioEffect: AudioEffect) {
+        globalEffects.removeAll { toBeChecked in
+            toBeChecked.effect == audioEffect.effect
+        }
+    }
+    
+    public func clearAudioEffects() {
+        globalEffects.removeAll()
     }
 
     /**
@@ -534,10 +550,13 @@ public class JustAudioPlayer {
         mainPlayer.clearAudioModifiers()
 
         mainPlayer.audioModifiers = [rateModifier]
+
+        globalEffects.forEach { mainPlayer.addAudioModifier($0.effect) }
+
         audioSource.effects.forEach { mainPlayer.addAudioModifier($0.effect) }
 
         if let equalizer = equalizerModifier {
-            mainPlayer.audioModifiers.append(equalizer)
+            mainPlayer.addAudioModifier(equalizer)
         }
     }
 }
