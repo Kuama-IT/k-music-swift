@@ -147,19 +147,6 @@ public class JustAudioPlayer {
         }
     }
 
-    func scheduleAudioSource() throws {
-        if queueManager.count == 1 {
-            processingState = .loading
-            play(track: try queueManager.element(at: 0))
-            queueIndex = 0
-        } else if let track = try tryMoveToNextTrack() { // first time to play a song
-            processingState = .loading
-            play(track: track)
-        } else {
-            processingState = .completed
-        }
-    }
-
     /**
      * Pause the player, but keeps it ready to play (`queue` will not be dropped, `queueIndex` will not change)
      */
@@ -314,7 +301,7 @@ public class JustAudioPlayer {
     }
 
     /**
-     * Removes the current pre
+     * Clears the current preset gains
      */
     public func resetGains() throws {
         guard let equalizer = equalizer else {
@@ -326,6 +313,9 @@ public class JustAudioPlayer {
         self.equalizer = equalizer
     }
 
+    /**
+     * Writes the final output of the engine to a file inside the documents directory
+     */
     public func writeOutputToFile() throws {
         guard let documentsDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw CouldNotCreateOutputFileError()
@@ -352,7 +342,35 @@ public class JustAudioPlayer {
         }
     }
 
+    /**
+     * Stops writing the final output of the engine to a file (see `writeOutputToFile`)
+     */
+    public func stopWritingOutputFile() {
+        guard outputAbsolutePath != nil else { // we never registered a tap via `writeOutputToFile`
+            return
+        }
+
+        engine.mainMixerNode.removeTap(onBus: 0)
+    }
+
     // MARK: - Private API
+
+    /**
+     * Either plays the only track in queue (without trying to move to next) or moves to the next track (if available)
+     * Updates accordingly the `processingState` and `queueIndex` of the player
+     */
+    private func scheduleAudioSource() throws {
+        if queueManager.count == 1 {
+            processingState = .loading
+            play(track: try queueManager.element(at: 0))
+            queueIndex = 0
+        } else if let track = try tryMoveToNextTrack() { // first time to play a song
+            processingState = .loading
+            play(track: track)
+        } else {
+            processingState = .completed
+        }
+    }
 
     /**
      * Tries to move the queue index to the next track.
