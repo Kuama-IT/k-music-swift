@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'kMusicSwift'
-  s.version          = '0.1.3'
+  s.version          = '0.1.4'
   s.summary          = 'just_audio flutter plugin iOS implementation'
 
   s.description      = <<-DESC
