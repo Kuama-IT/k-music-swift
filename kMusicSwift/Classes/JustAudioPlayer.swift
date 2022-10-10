@@ -137,7 +137,7 @@ public class JustAudioPlayer {
             toBeChecked.effect == audioEffect.effect
         }
     }
-    
+
     public func clearAudioEffects() {
         globalEffects.removeAll()
     }
@@ -159,6 +159,7 @@ public class JustAudioPlayer {
         } else {
             // player node is in pause
             processingState = .loading
+            isPlaying = false
             mainPlayer.play()
         }
     }
@@ -167,8 +168,9 @@ public class JustAudioPlayer {
      * Pause the player, but keeps it ready to play (`queue` will not be dropped, `queueIndex` will not change)
      */
     public func pause() {
-        processingState = .ready
         mainPlayer.pause()
+        processingState = .ready
+        isPlaying = false
     }
 
     /**
@@ -183,6 +185,7 @@ public class JustAudioPlayer {
         queueIndex = 0
         unsubscribeUpdates()
         equalizer = nil
+        isPlaying = false
     }
 
     /// seek to a determinate value, default is 10 second forward
@@ -194,12 +197,14 @@ public class JustAudioPlayer {
     /// Skip to the next item
     public func seekToNext() throws {
         if let track = try tryMoveToNextTrack(isForced: true) {
+            processingState = .loading
             play(track: track)
         }
     }
 
     /// Skip to the previous item
     public func seekToPrevious() throws {
+        processingState = .loading
         play(track: try tryMoveToPreviousTrack())
     }
 
@@ -339,7 +344,6 @@ public class JustAudioPlayer {
 
         let outputFileUrl = documentsDirectoryURL.appendingPathComponent(Date().description)
 
-        // Handy while testing to retrieve quickly the file inside the OS filesystem
         outputAbsolutePath = outputFileUrl.absoluteString
 
         // We need some settings for the output audio file. The quickiest way to test this is to grab the same settings of the output node of the engine.
@@ -376,6 +380,7 @@ public class JustAudioPlayer {
      * Updates accordingly the `processingState` and `queueIndex` of the player
      */
     private func scheduleAudioSource() throws {
+        isPlaying = false
         if queueManager.count == 1 {
             processingState = .loading
             play(track: try queueManager.element(at: 0))
@@ -521,7 +526,7 @@ public class JustAudioPlayer {
             // following code is not so elegant, and fragile. It can probably benefit of a refactor where we enhance
             // the coordination of the statuses of the player and move them to a own class
             var subId: UInt?
-            subId = SAPlayer.Updates.StreamingBuffer.subscribe {
+            subId = mainPlayer.updates.streamingBuffer.subscribe {
                 guard let subscription = subId else {
                     return
                 }
@@ -530,7 +535,7 @@ public class JustAudioPlayer {
                 let localCanPlay = audioSource.isLocal
 
                 if remoteCanPlay || localCanPlay {
-                    SAPlayer.Updates.StreamingBuffer.unsubscribe(subscription)
+                    self.mainPlayer.updates.streamingBuffer.unsubscribe(subscription)
                     actWhenAudioSourceIsReady()
                 }
             }
@@ -573,7 +578,7 @@ private extension JustAudioPlayer {
     }
 
     func subscribeToPlayingStatusUpdates() {
-        playingStatusSubscription = SAPlayer.Updates.PlayingStatus
+        playingStatusSubscription = mainPlayer.updates.playingStatus
             .subscribe { [weak self] playingStatus in
 
                 guard let self = self, let queueIndex = self.queueIndex else {
@@ -590,20 +595,6 @@ private extension JustAudioPlayer {
                     self.speed = (self.mainPlayer.audioModifiers[0] as? AVAudioUnitTimePitch)?.rate
                 }
 
-                // Edge case:
-                // When playing a remote song, we often receive this sequence of statuses:
-                //
-                // buffering
-                // ended
-                // playing
-                //
-                // or worse:
-                //
-                // ended
-                // buffering
-                // playing
-                // To avoid going to the next song in these situations, we need to know if the current track is really playing
-
                 do {
                     let convertedTrackStatus = AudioSourcePlayingStatus.fromSAPlayingStatus(playingStatus)
 
@@ -613,19 +604,12 @@ private extension JustAudioPlayer {
 
                     let currentTrackPlayingStatus = audioSource.playingStatus
 
-                    print("current: \(currentTrackPlayingStatus)")
-
-                    if currentTrackPlayingStatus == .buffering {
-                        self.processingState = .buffering
-                    } else {
-                        self.processingState = .ready
-                    }
-
                     if currentTrackPlayingStatus == .ended {
                         // TODO: it seems that time updates are keeping coming up even after the track finishes. Probably related to the `pause()` we commented on the `AudioStreamEngine` internal class, this needs some investigation. Meanwhile, keep this pause here
                         self.mainPlayer.pause()
 
                         if let track = try self.tryMoveToNextTrack() {
+                            self.processingState = .loading
                             self.play(track: track)
                         } else {
                             self.processingState = .completed
@@ -633,14 +617,14 @@ private extension JustAudioPlayer {
                             self.isPlaying = false
                         }
                     } else {
-                        self.processingState = .completed
-                        // propagate status to subscribers
-                        self.isPlaying = currentTrackPlayingStatus == .playing
-                    }
-
-                    // As seen on Android
-                    if self.isPlaying == true {
-                        self.processingState = .ready
+                        if currentTrackPlayingStatus == .buffering {
+                            self.processingState = .buffering
+                        } else {
+                            self.processingState = .ready
+                        }
+                        if currentTrackPlayingStatus == .playing {
+                            self.isPlaying = true
+                        }
                     }
                 } catch {
                     self.processingState = .none
@@ -650,14 +634,14 @@ private extension JustAudioPlayer {
     }
 
     func subscribeToBufferPosition() {
-        streamingBufferSubscription = SAPlayer.Updates.StreamingBuffer
+        streamingBufferSubscription = mainPlayer.updates.streamingBuffer
             .subscribe { [weak self] buffer in
                 self?.bufferPosition = buffer.bufferingProgress
             }
     }
 
     func subscribeToElapsedTime() {
-        streamingBufferSubscription = SAPlayer.Updates.ElapsedTime
+        streamingBufferSubscription = mainPlayer.updates.elapsedTime
             .subscribe { [weak self] elapsedTime in // let's assume this is expressed in seconds
 
                 guard let self = self else { return }
@@ -678,6 +662,7 @@ private extension JustAudioPlayer {
                         if elapsedTime >= clipped.end { // here go next or pause?
                             try clipped.setPlayingStatus(.ended)
                             if let track = try self.tryMoveToNextTrack() {
+                                self.processingState = .loading
                                 self.play(track: track)
                             } else {
                                 self.processingState = .completed
@@ -692,6 +677,12 @@ private extension JustAudioPlayer {
                             self.elapsedTime = self.duration
                             return
                         }
+
+                        // When player is paused it emit last played time position
+                        if audioSource.playingStatus == .paused {
+                            return
+                        }
+
                         self.elapsedTime = elapsedTime
                     }
                 } catch {
@@ -701,7 +692,7 @@ private extension JustAudioPlayer {
     }
 
     func subscribeToDuration() {
-        durationSubscription = SAPlayer.Updates.Duration
+        durationSubscription = mainPlayer.updates.duration
             .subscribe { [weak self] duration in
 
                 guard let self = self else { return }
@@ -720,16 +711,16 @@ private extension JustAudioPlayer {
 
     func unsubscribeUpdates() {
         if let subscription = elapsedTimeSubscription {
-            SAPlayer.Updates.ElapsedTime.unsubscribe(subscription)
+            mainPlayer.updates.elapsedTime.unsubscribe(subscription)
         }
         if let subscription = durationSubscription {
-            SAPlayer.Updates.ElapsedTime.unsubscribe(subscription)
+            mainPlayer.updates.duration.unsubscribe(subscription)
         }
         if let subscription = playingStatusSubscription {
-            SAPlayer.Updates.PlayingStatus.unsubscribe(subscription)
+            mainPlayer.updates.playingStatus.unsubscribe(subscription)
         }
         if let subscription = streamingBufferSubscription {
-            SAPlayer.Updates.StreamingBuffer.unsubscribe(subscription)
+            mainPlayer.updates.streamingBuffer.unsubscribe(subscription)
         }
     }
 }
