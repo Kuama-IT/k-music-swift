@@ -23,6 +23,6 @@ See https://github.com/ryanheise/just_audio/tree/minor/just_audio#readme for a f
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'SwiftAudioPlayerKuama', '~> 7.6.3'
+  s.dependency 'SwiftAudioPlayerKuama', '~> 7.7.0'
 end
 
